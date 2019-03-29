@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="https://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="description" content="This tutorial deals with how to move your NPC from one SoD area to another depending on the campaign's progress if they are not in the group. As an example NPC, Biff the Understudy will be the NPC in this guide!"/>
+    <meta name="keywords" content="Baldur's Gate, BG1, SoD, Modding, Tutorial, NPC, Biff the Understudy"/>
+    <title>Modding Tutorial: SoD Banter System for Your NPC</title>
+    <style type="text/css">
+      body {
+        margin: 0px;
+        padding: 0px;
+        text-align: left;
+        color: #000;
+        background-image: linear-gradient(#AAA, #DDD)
+        /* background-color: #AAA */
+      }
+
+      #wrap {
+        border-left: thin groove #444;
+        border-right: thin groove #444;
+        background: #FFF;
+        color: #000;
+        min-width: 15cm;
+        max-width: 30cm;
+        width: 80%;
+        margin: 0 auto;
+        padding: 1px 30px;
+        font-family: Verdana, Tahoma, Arial, sans-serif;
+        font-size: 14px;
+      }
+
+      #toc {
+        margin: 20px 0px 40px 0px;
+      }
+
+      h1 {
+        font-size: 28px;
+        color: #000;
+        text-shadow: 2px 2px 4px #AAA;
+      }
+
+      h2 {
+          font-size: 22px;
+          color: #000;
+          text-shadow: 1px 1px 2px #BBB;
+      }
+
+      ol li {
+        margin: 6px 0px 3px 0px;
+      }
+
+      ol.toc li {
+        font-weight: bold;
+        list-style-type: decimal;
+      }
+
+      a {
+        text-decoration: none;
+        color: #05B;
+      }
+
+      a:hover {
+        text-decoration: underline;
+        color: #A62;
+      }
+
+      h1 a, h2 a {
+        color: #000;
+      }
+      h1 a:hover, h2 a:hover {
+        text-decoration: none;
+        color: #000;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0px 0px 40px 0px;
+      }
+
+      tr {
+        margin: 0px;
+        padding: 0px;
+      }
+
+      td {
+        border: 1px solid #000;
+        padding: 2px;
+        font-family: "Lucida Console", Monaco, monospace;
+      }
+
+      pre.code {
+        display: block;
+        background-color: #EEE;
+        overflow-x: auto;
+        border: 1px solid #444;
+        padding: 15px;
+        margin-bottom: 40px;
+        font-family: Consolas, "Courier New", Courier, monospace;
+      }
+
+      .info {
+        font-style: italic;
+        margin-bottom: 30px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="wrap"> <!-- Start content wrapper -->
+      <h1>Modding Tutorial: SoD Banter System for Your NPC</h1>
+	  
+	<p>Version 1, by jastey</p>
+
+      <div id="toc">
+        <h2><a name="toc">Contents</a></h2>
+        <ol class="toc">
+          <li><a href="#toc_1">Activating and Initiating the Banter: Additions to Biff's Override Script</a></li>
+          <li><a href="#toc_2">The Banter "Area" Script</a></li>
+          <li><a href="#toc_3">Having another NPC Interject into the Banter</a></li>
+          <li><a href="#toc_4">Credits, Used Tools, and Helpful Links</a></li>
+          <li><a href="#toc_5">Version History</a></li>
+        </ol>
+      </div>
+
+      <p class="info">This tutorial deals with how to make your NPC banter with the other party NPCs like it is custom in SoD. In SoD, banters of party NPCs are done via floating text above their heads while the player wanders about the areas. As an example NPC, Biff the Understudy will be the NPC in this guide, bantering with Corwin.</p>
+      <p><strong>Some nomenclature:</strong></p>
+      <table>
+        <col width="180" />
+        <col width="*" />
+        <tr>
+          <td>xx</td>
+          <td>used as a modding prefix in this tutorial. If you don't have a prefix, check the <a href="http://www.blackwyrmlair.net/prefixes/">IE Community Filename Prefix Reservations List</a> and register one at <a href="http://forums.blackwyrmlair.net/index.php?showtopic=113">Black Wyrm Lair Forums</a>.</td>
+        </tr>
+          <td>xxBiff</td>
+          <td>Biff's script name (death variable)</td>
+        </tr>
+        <tr>
+          <td>xxBiffs.bcs</td>
+          <td>Biff's SoD override script</td>
+        </tr>
+        <tr>
+          <td>xxBBan01.bcs</td>
+          <td>Biff's SoD banter "area" script with Corwin</td>
+        </tr>
+      </table>
+
+      <h2><a name="toc_1">1. Activating and Initiating the Banter: Additions to Biff's Override Script</a></h2>
+      <p>The banter is started by Biff's SoD override script xxBiffs.bcs. As an example, he will banter with Corwin.</p> 
+	  <p class="info">Sidenote: if you want to distinguish between BG:EE and SoD, an easy way to detect SoD in a BG:EE+SoD game is by using the unique variable "GlobalGT("bd_plot","global",0)" which is set to "2" at the beginning of the SoD intro cutscene (where the two followers of Korlasz are talking beside the chasm: "Sarevok's dead. Everything's a mess. We should have gotten out of the city days ago.") This might be more useful for dialogues, though (PID, for example), since it's good practice to just use a separate script for SoD. (For EET, you can use "Global("ENDOFBG1","GLOBAL",1)" for the SoD portion of the game, which will be set to "2" in BGII.) And while we are at it: after finishing Korlasz' crypt and the PC being woken up by Imoen in the Ducal Palace, the check variable for SoD would be "GlobalGT("BD_PLOT","GLOBAL",50)" - just in case you want to count the intro dungeon to "BG:EE", content wise.</p>
+      <p>The following is what we put into Biff's SoD script xxBiffs.bcs:</p> 
+	  <ol>
+        <li>The first script block activates the banter and sets a timer if both Biff and Corwin are in the party.</li>
+        <li>The second script block deactivates and sets the variable back to "0" if one of them is no longer in the party.</li>
+        <li>The third script block initiates the banter by setting the GENERAL area script to a script containing our banter, which will be discussed in top 2. In this example, the banter "area" script will be called "xxBiff01".</li>
+	  </ol>
+	<p class="info">Sidenote: of course all banters of your mod NPC could be included into the same banter "area" script file. For this, you need to give the banter that is supposed to trigger a variable the banter "area" script can see, too. The example reflects this.</p>
+	
+	 <p>The following timers are used:</p> 
+	  <ol>
+        <li>The custom timer until this banter will be triggered, we will call it ("xxBiff_SoD_CorwinBTimer","LOCALS"). Note that this timer is a random number between a minimum and a maximum specified in the first script block, and that it is reset every time one of the NPCs leave the party. With this in mind, in my opinion the standard maximum of 14 ingame days might be rather long if a player tends to switch NPCs often.</li>
+        <li>("BD_NPC_BANTER","GLOBAL") - global banter timer that spaces all NPC banters in SoD. Is reset by bdbaldur.bcs if it runs out without a starting banter (random between fifteen ingame minutes (90 s realtime) and one ingame hour, i.e. 6 minutes realtime). Also gets reset by every banter call in the NPCs' scripts (FOUR_HOURS, i.e. 24 minutes realtime) and at some point in the game where apparently no banters should fire the next ingame hours.</li>
+        <li>("BD_AREA_BANTER_DELAY","MYAREA") area-specific timer that is set by baldur.bcs (SEVEN_DAYS) every time it and the global banter timer run out. This timer has to RUN so banters will fire (NPC scripts check for GlobalTimerNotExpired("BD_AREA_BANTER_DELAY","MYAREA")).</li>
+	  </ol>
+	<p></p> 	  
+
+    <p>The Global("xxBiff_SoD_CorwinBanter_DEBUG","GLOBAL",1) in the third script block is for debugging purposes only. If you do not want to include this, leave out this variable along with the two OR(2) calls.</p> 
+	
+	<p>This is what the script blocks look like in Biff's SoD script:</p>
+	<pre class="code">	  
+/* This goes into Biff's SoD script */
+
+/* First script block: Banter activation: detect Corwin and set a timer */
+IF
+	InParty(Myself) //"Myself" is Biff since we add this to his override script
+	InParty("CORWIN")  // Biff's banter partner's script name (death variable)
+	Global("xxSoD_CorwinBanter","LOCALS",0) //this variable is for activating and initiating this banter inside this script, only. Watch the letter count (max 27 for local variables if this didn't change for EE)
+THEN
+	RESPONSE #100
+		SetGlobalTimerRandom("xxBiff_SoD_CorwinBTimer","LOCALS",ONE_DAY,FOURTEEN_DAYS) //Adjust the min and max timer accordingly to what you want
+		SetGlobal("xxSoD_CorwinBanter","LOCALS",1)
+END
+
+
+/* Second script block: Banter deactivation in case Corwin or Biff is no longer in the party */
+IF
+	OR(2)
+		!InParty(Myself)
+		!InParty("CORWIN")  
+	Global("xxSoD_CorwinBanter","LOCALS",1)
+THEN
+	RESPONSE #100
+		SetGlobal("xxSoD_CorwinBanter","LOCALS",0)
+END
+
+/* Third script block: timer run out and banter is initiated by setting the area script to a custom script containing our banter. */
+IF
+	OR(2) //this is for debugging purposes, remove this line if you do not want to include this possibility 
+		Global("xxBiff_SoD_CorwinBanter_DEBUG","GLOBAL",1) //this is for debugging purposes, remove this line if you do not want to include this possibility 
+		GlobalTimerExpired("xxBiff_SoD_CorwinBTimer","LOCALS") //this needs to stay
+	OR(2) //this is for debugging purposes, remove this line if you do not want to include this possibility 
+		Global("xxBiff_SoD_CorwinBanter_DEBUG","GLOBAL",1) //this is for debugging purposes, remove this line if you do not want to include this possibility 
+		!GlobalTimerNotExpired("BD_NPC_BANTER","GLOBAL") //this needs to stay
+	GlobalTimerNotExpired("BD_AREA_BANTER_DELAY","MYAREA")
+	Global("xxSoD_CorwinBanter","LOCALS",1)
+	IsValidForPartyDialog(Myself) //"IsValidForPartyDialog" is working in a reliable fashion in the EE, but if you prefer you can use the wellknown "CD_STATE_NOTVALID" state check together with See() and InParty() instead.
+	IsValidForPartyDialog("CORWIN")  
+	!PartyRested()
+	!ActuallyInCombat()
+THEN
+	RESPONSE #100
+		BanterBlockTime(450) //From IESDP: "This action extends the time taken for the banter timer to expire. The banter timers are hardcoded and every time one expires an NPC's b****.dlg is called.". Adjust the time accordingly.
+		SetGlobalTimer("BD_NPC_BANTER","GLOBAL",FOUR_HOURS)
+		SetGlobal("xxSoD_CorwinBanter","LOCALS",2)
+//	    SetGlobal("xx_SoD_xxBiff01","MYAREA",1) //uncomment this line if you want to put all your banters into one single banter "area" script file. Setting the variable here needs to be reflected in xxBiff01.baf as stated in the comments. This is the same variable as it is used in xxBiff01.baf.
+		SetAreaScript("xxBiff01",GENERAL) //this is the banter "area" script containing the Biff-Corwin banter.
+END
+	</pre>
+
+
+      <h2><a name="toc_2">2. The Banter "Area" Script</a></h2>
+      <p>Now we need the banter "area" script that contains the Biff-Corwin banter. The name we give it for this tutorial is "xxBiff01". Since script names are bound to a maximum letter count of 8 including your prefix, just numbering them serially for the different NPC banters might by a good idea.</p>
+	  <p>The second script block resets the area script after the banter is done.</p>
+	  <p class="info">If you prefer to put all your banters into one banter "area" script, do not forget to close the trigger variable inside the relevant banter script block. The tutorial reflects this in the comments. Also, in this case the "second" script block that resets the area script needs to be included only once at the end of the file.</p>
+	 <pre class="code">  
+/*  banter "area" script "xxBiff01.baf" with Biff-Corwin banter: */
+IF
+	InMyArea(Player1)
+	!ActuallyInCombat()
+	!GlobalTimerNotExpired("BD_BANTER_DELAY","MYAREA") //this means "timer IS expired" or "was never set yet"
+	!Global("xx_SoD_xxBiff01","MYAREA",-1) //This is how SoD does it, with one banter per file. If you want to put all banters into one file, use "GlobalGT("xx_SoD_xxBiff01","MYAREA",0)" instead, so only this banter can fire.
+	Switch("xx_SoD_xxBiff01","MYAREA") //this switches between the different RESPONSE #x depending on the variable's value ("x").
+THEN
+	RESPONSE #0 //This is how SoD does it, with one banter per file. 
+	//use "RESPONSE #1" instead if you want to put all banters into one file and the Global("xx_SoD_xxBiff01","MYAREA",1) was set to "1" in Biff's script (because then the variable is already at 1 when this banter script is called.)
+		DisplayStringHead("xxBiff",~I'm not sure what I should be talking about. I know all the other NPC's lines, though! Pretend I'm Minsc, yes?~)  
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",9) //The value given here is the time in seconds until the next NPC line is shown. Chose the value depending on the length of the sentence / audio file.
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",10) //This makes the "switch" jump to the "RESPONSE #10" for the next loop: the script is still active, the script block gets executed again, but this time, Corwin replies:
+	RESPONSE #10
+		DisplayStringHead("CORWIN",58849)  // There's no shortfall of faces deserving a good kick in this world. I'm sure we'll come across one sooner than later.
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",8)
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",20)
+	RESPONSE #20
+		DisplayStringHead("xxBiff",58850)  // And then Minsc does what he does best! Hehe!
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",4)
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",30)
+	RESPONSE #30
+		DisplayStringHead("corwin",58851)  // Ramble nonsensically to his pet rodent about other peoples' rears?
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",ONE_MINUTE) //With ONE_MINUTE = 6 seconds real time
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",40)
+	RESPONSE #40
+		DisplayStringHead("xxBiff",58852)  // And then Minsc will do what he does second best!
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",4)
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",-1) //this defines the banter to end, and the wanted "loop" cycle stops. The script is still active, so the second script blocks gets executed:
+END
+
+/* second script block: deactivate this script by resetting the area script. This script block is needed once at the end of the banter "area" file. */
+IF
+	!GlobalTimerNotExpired("BD_BANTER_DELAY","MYAREA") //this means "timer IS expired"
+THEN
+	RESPONSE #100
+		SetAreaScript("",GENERAL) //sets area script back (default is "no GENERAL script")
+END
+	</pre>
+	
+      <h2><a name="toc_3">3. Having another NPC Interject into the Banter</a></h2>
+	  <p>What if we want to have another NPC participate in the banter, but without making the whole banter dependent on this other NPC's presence? If they are there and can talk, they should pipe in, but if not, the banter between Corwin and Biff should fire nontheless.</p>
+	  <p>For this, we include the other NPC's line into our banter "area" script, together with another script block that toggles the switch variable. Let's say Minsc should say something after Biff's first line if he's there. If not, the banter should skip his line and just Corwin and Biff should banter with each other.</p>
+	  <p>For Biff's first line, the variable is either at "0" (if we chose one banter per file and did not set the variable in Biff's script), or at "1" if it was set in Biff's script. Corwin's line then follows or "10". Minsc's line should be between the two, so we set the variable to "2", i.e. a value between the two others.</p>
+	  <p>In this case, the xxBiff01.baf would look like this:</p>
+	 <pre class="code">  
+/*  banter "area" script "xxBiff01.baf" with Biff-Corwin banter including Minsc's interjection: */
+
+/* this script block toggles Minsc's line: if he is there an can talk, his line will come before Corwin's. */
+IF
+	Global("xx_SoD_xxBiff01","MYAREA",10) //"10" means Corwin's line would be next
+	Global("xx_SoD_xxBiff01_2","MYAREA",0)
+	IfValidForPartyDialogue("MINSC")  // Minsc is present and can talk
+THEN
+	RESPONSE #100
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",2) //variable is set to "2" so now Minsc can say his line
+		SetGlobal("xx_SoD_xxBiff01_2","MYAREA",1)
+END
+
+IF
+	InMyArea(Player1)
+	!ActuallyInCombat()
+	!GlobalTimerNotExpired("BD_BANTER_DELAY","MYAREA") //this means "timer IS expired" or "was never set yet"
+	!Global("xx_SoD_xxBiff01","MYAREA",-1) //This is how SoD does it, with one banter per file. If you want to put all banters into one file, use "GlobalGT("xx_SoD_xxBiff01","MYAREA",0)" instead, so only this banter can fire.
+	Switch("xx_SoD_xxBiff01","MYAREA") //this switches between the different RESPONSE #x depending on the variable's value ("x").
+THEN
+	RESPONSE #0 //This is how SoD does it, with one banter per file. 
+	//use "RESPONSE #1" instead if you want to put all banters into one file and set the Global("xx_SoD_xxBiff01","MYAREA",1) to "1" in Biff's script (because then the variable is already at 1 when the script is called.)
+		DisplayStringHead("xxBiff",~I'm not sure what I should be talking about. I know all the other NPC's lines, though! Pretend I'm Minsc, yes?~)  
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",9) 
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",10) 
+	RESPONSE #2 //This is Minsc's line
+		DisplayStringHead("MINSC",~Ah, but Biff will never be a real Minsc, without a giant space hamster!~)  
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",7) 
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",10) //now the variable is reset to "10" and Corwin's line will fire next.
+	RESPONSE #10
+		DisplayStringHead("CORWIN",58849)  // There's no shortfall of faces deserving a good kick in this world. I'm sure we'll come across one sooner than later.
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",8)
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",20)
+	RESPONSE #20
+		DisplayStringHead("xxBiff",58850)  // And then Minsc does what he does best! Hehe!
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",4)
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",30)
+	RESPONSE #30
+		DisplayStringHead("corwin",58851)  // Ramble nonsensically to his pet rodent about other peoples' rears?
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",ONE_MINUTE) 
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",40)
+	RESPONSE #40
+		DisplayStringHead("xxBiff",58852)  // And then Minsc will do what he does second best!
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",4)
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",-1) 
+END
+
+/* second script block: deactivate this script by resetting the area script. This script block is needed once at the end of the banter "area" file. */
+IF
+	!GlobalTimerNotExpired("BD_BANTER_DELAY","MYAREA") 
+THEN
+	RESPONSE #100
+		SetAreaScript("",GENERAL) 
+END
+	</pre>
+	  
+      <h2><a name="toc_4">4. Credits, Used Tools, and Helpful Links</a></h2>
+	  <p>Thank you to Argent77 for the html template!</p>
+	  <p>Used Tools:</p>
+      <p><a href="https://github.com/Argent77/NearInfinity/releases/latest">Near Infinity</a></p>
+	  <p><a href="https://gibberlings3.github.io/iesdp/index.htm">IESDP</a></p>
+      <p><a href="https://notepad-plus-plus.org/">Notepad++</a></p>
+	  <p>Links:</p>
+      <p><a href="https://forums.beamdog.com/">BeamDog Forums</a></p>
+      <p><a href="https://www.gibberlings3.net/">The Gibberlings 3</a></p>
+      <p><a href="https://www.baldurs-gate.de/index.php">Kerzenburgforum</a></p>
+      <p><a href="http://www.spellholdstudios.net/">Spellhold Studios</a></p>
+      <p><a href="http://www.pocketplane.net/mambo/">Pocket PLane Group</a></p>
+      <p><a href="http://forums.blackwyrmlair.net/index.php?showtopic=113">Prefix Reservation at Black Wyrm Lair Forums</a></p>
+	  
+	  
+      <h2><a name="toc_5">5. Version History</a></h2>
+          <p>Version 1:</p>
+          <ul>
+            <li>public release</li>
+          </ul>
+    </div>  <!-- End content wrapper -->
+  </body>
+</html>
