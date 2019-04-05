@@ -4,7 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="description" content="This tutorial deals with how to move your NPC from one SoD area to another depending on the campaign's progress if they are not in the group. As an example NPC, Biff the Understudy will be the NPC in this guide!"/>
     <meta name="keywords" content="Baldur's Gate, BG1, SoD, Modding, Tutorial, NPC, Biff the Understudy"/>
-    <title>Modding Tutorial: SoD Banter System for Your NPC</title>
+    <title>Modding Tutorial Part 4: SoD Banter System for Your NPC</title>
     <style type="text/css">
       body {
         margin: 0px;
@@ -108,9 +108,9 @@
 
   <body>
     <div id="wrap"> <!-- Start content wrapper -->
-      <h1>Modding Tutorial: SoD Banter System for Your NPC</h1>
+      <h1>Modding Tutorial Part 4: SoD Banter System for Your NPC</h1>
 	  
-	<p>Version 1, by jastey</p>
+	<p>Version 2, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -147,7 +147,6 @@
 
       <h2><a name="toc_1">1. Activating and Initiating the Banter: Additions to Biff's Override Script</a></h2>
       <p>The banter is started by Biff's SoD override script xxBiffs.bcs. As an example, he will banter with Corwin.</p> 
-	  <p class="info">Sidenote: if you want to distinguish between BG:EE and SoD, an easy way to detect SoD in a BG:EE+SoD game is by using the unique variable "GlobalGT("bd_plot","global",0)" which is set to "2" at the beginning of the SoD intro cutscene (where the two followers of Korlasz are talking beside the chasm: "Sarevok's dead. Everything's a mess. We should have gotten out of the city days ago.") This might be more useful for dialogues, though (PID, for example), since it's good practice to just use a separate script for SoD. (For EET, you can use "Global("ENDOFBG1","GLOBAL",1)" for the SoD portion of the game, which will be set to "2" in BGII.) And while we are at it: after finishing Korlasz' crypt and the PC being woken up by Imoen in the Ducal Palace, the check variable for SoD would be "GlobalGT("BD_PLOT","GLOBAL",50)" - just in case you want to count the intro dungeon to "BG:EE", content wise.</p>
       <p>The following is what we put into Biff's SoD script xxBiffs.bcs:</p> 
 	  <ol>
         <li>The first script block activates the banter and sets a timer if both Biff and Corwin are in the party.</li>
@@ -266,7 +265,7 @@ END
       <h2><a name="toc_3">3. Having another NPC Interject into the Banter</a></h2>
 	  <p>What if we want to have another NPC participate in the banter, but without making the whole banter dependent on this other NPC's presence? If they are there and can talk, they should pipe in, but if not, the banter between Corwin and Biff should fire nontheless.</p>
 	  <p>For this, we include the other NPC's line into our banter "area" script, together with another script block that toggles the switch variable. Let's say Minsc should say something after Biff's first line if he's there. If not, the banter should skip his line and just Corwin and Biff should banter with each other.</p>
-	  <p>For Biff's first line, the variable is either at "0" (if we chose one banter per file and did not set the variable in Biff's script), or at "1" if it was set in Biff's script. Corwin's line then follows or "10". Minsc's line should be between the two, so we set the variable to "2", i.e. a value between the two others.</p>
+	  <p>For Biff's first line, the variable is either at "0" (if we chose one banter per file and did not set the variable in Biff's script), or at "1" if it was set in Biff's script. Corwin's line then follows for "10". Minsc's line should be between the two, so we set the variable to "2", i.e. a value between the two others.</p>
 	  <p>In this case, the xxBiff01.baf would look like this:</p>
 	 <pre class="code">  
 /*  banter "area" script "xxBiff01.baf" with Biff-Corwin banter including Minsc's interjection: */
@@ -341,6 +340,12 @@ END
 	  
 	  
       <h2><a name="toc_5">5. Version History</a></h2>
+          <p>Version 2:</p>
+          <ul>
+            <li>moved sidenote about detecting SoD into tutorial no. 1 "Automatic Transition of NPCs into SoD and between Camps in SoD"</li>
+            <li>typo corrections</li>
+            <li>changed title slightly</li>
+          </ul>
           <p>Version 1:</p>
           <ul>
             <li>public release</li>
