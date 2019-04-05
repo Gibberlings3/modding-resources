@@ -1,0 +1,366 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="https://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="description" content="This tutorial deals with how to move your NPC from one SoD area to another depending on the campaign's progress if they are not in the group. As an example NPC, Biff the Understudy will be the NPC in this guide!"/>
+    <meta name="keywords" content="Baldur's Gate, BG1, SoD, Modding, Tutorial, NPC, Biff the Understudy"/>
+    <title>Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD</title>
+    <style type="text/css">
+      body {
+        margin: 0px;
+        padding: 0px;
+        text-align: left;
+        color: #000;
+        background-image: linear-gradient(#AAA, #DDD)
+        /* background-color: #AAA */
+      }
+
+      #wrap {
+        border-left: thin groove #444;
+        border-right: thin groove #444;
+        background: #FFF;
+        color: #000;
+        min-width: 15cm;
+        max-width: 30cm;
+        width: 80%;
+        margin: 0 auto;
+        padding: 1px 30px;
+        font-family: Verdana, Tahoma, Arial, sans-serif;
+        font-size: 14px;
+      }
+
+      #toc {
+        margin: 20px 0px 40px 0px;
+      }
+
+      h1 {
+        font-size: 28px;
+        color: #000;
+        text-shadow: 2px 2px 4px #AAA;
+      }
+
+      h2 {
+          font-size: 22px;
+          color: #000;
+          text-shadow: 1px 1px 2px #BBB;
+      }
+
+      ol li {
+        margin: 6px 0px 3px 0px;
+      }
+
+      ol.toc li {
+        font-weight: bold;
+        list-style-type: decimal;
+      }
+
+      a {
+        text-decoration: none;
+        color: #05B;
+      }
+
+      a:hover {
+        text-decoration: underline;
+        color: #A62;
+      }
+
+      h1 a, h2 a {
+        color: #000;
+      }
+      h1 a:hover, h2 a:hover {
+        text-decoration: none;
+        color: #000;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0px 0px 40px 0px;
+      }
+
+      tr {
+        margin: 0px;
+        padding: 0px;
+      }
+
+      td {
+        border: 1px solid #000;
+        padding: 2px;
+        font-family: "Lucida Console", Monaco, monospace;
+      }
+
+      pre.code {
+        display: block;
+        background-color: #EEE;
+        overflow-x: auto;
+        border: 1px solid #444;
+        padding: 15px;
+        margin-bottom: 40px;
+        font-family: Consolas, "Courier New", Courier, monospace;
+      }
+
+      .info {
+        font-style: italic;
+        margin-bottom: 30px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="wrap"> <!-- Start content wrapper -->
+      <h1>Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD</h1>
+	  
+	<p>Version 1, by jastey</p>
+
+      <div id="toc">
+        <h2><a name="toc">Contents</a></h2>
+        <ol class="toc">
+          <li><a href="#toc_1">The Set-Up: Make Biff comment on what happened</a></li>
+          <li><a href="#toc_2">NPCs leave the group after The Incident</a></li>
+          <li><a href="#toc_3">Make Biff wait at the Prison Exit</a></li>
+          <li><a href="#toc_4">Biff should say something to the PC after the escape</a></li>
+          <li><a href="#toc_5">Biff should rejoin the group (if possible)</a></li>
+          <li><a href="#toc_12">Credits, Used Tools, and Helpful Links</a></li>
+          <li><a href="#toc_13">Version History</a></li>
+        </ol>
+      </div>
+
+      <p class="info">This tutorial deals with how to integrate your NPC into the events and cutscenes at the end of SoD. Biff the Understudy will be the example NPC in this guide.</p>
+	  <p class="info">Note: This tutorial contains heavy SoD spoilers.</p>
+      <p><strong>Some nomenclature:</strong></p>
+      <table>
+        <col width="180" />
+        <col width="*" />
+        <tr>
+          <td>xx</td>
+          <td>used as a modding prefix in this tutorial. If you don't have a prefix, check the <a href="http://www.blackwyrmlair.net/prefixes/">IE Community Filename Prefix Reservations List</a> and register one at <a href="http://forums.blackwyrmlair.net/index.php?showtopic=113">Black Wyrm Lair Forums</a>.</td>
+        </tr>
+        <tr>
+          <td>xxBiff</td>
+          <td>Biff's script name (death variable)</td>
+        </tr>
+        <tr>
+          <td>xxBiffs.bcs</td>
+          <td>Biff's SoD override script</td>
+        </tr>
+        <tr>
+          <td>xxBiffsP.dlg</td>
+          <td>Biff's kickout (post) dialogue</td>
+        </tr>
+      </table>
+
+      <h2><a name="toc_1">1. The Set-Up: Make Biff comment on what happened</a></h2>
+      <p>After the PC dealt with the main foe and returned from literally hell, the game is basically over except for the PC's "fall". As soon as the player let the PC talk to Sergeant Dazzo on the stairs in bd4300.are to go to rest after the celebrations, the PC's fall is initialized which consists of several cutscenes with a few dialogues in between.</p>
+	  <p class="info">In case your NPC will not accompany the PC into Irenicus Dungeon in BGII (story wise), and you want to save your NPC from the emotional and moral dilemma of witnessing the PC's murder accusations and then just wave "bye" and disappear, you could also make them say good-bye and actually leave the moment the group retreats for rest. This could be done by I_C_T into BDDAZZO.dlg states 2 and 3.</p>
+	  <p>The first of the cutscenes leading to Skie's death and the accusations towards the PC is the cutscene where the Hooded Man makes the PC believe they killed Skie. At the end of this scene, when the Flaming Fist accuses the PC of being a murderer, all NPCs come into the room and some of them comment on what happened. Up to that point, all NPC of the group are handled by the cutscenes directly (bdcut60a.bcs and bdcut60b.bcs) and no further patching is needed, unless you want your NPC to participate even if they are not in the group.</p> 
+	  <p>We look at Biff being part of the group now. As already said, some NPCs give a comment on the murder scene. Actually, all of the NPCs have a comment, but it is scripted so there is a 50% chance of each whether they comment or not.</p> 
+	  <p>Also, there is two different possible comments with regard to whether the NPCs believe in the PC's guilt or innocence, depending on the PC's reputation. Of course, for your own NPC, you could trigger positive or negative reactions depending on what you like (romance / friendship status, custom count of good deeds, etc.) if you do not want to restrict it to reputation alone.</p>
+	  <p>The comments are handled in <strong>bd4100.bcs</strong></p> where we add the following xxbd4100.baf for Biff:
+      <pre class="code">
+/* xxbd4100.baf. CHARNAME is accused of murder. Biff comments */
+
+/* first script block: Biff makes a comment in case of lower reputation */
+IF
+	Global("bd_plot","global",591)
+	!GlobalTimerNotExpired("bd_mdd1352_ot_timer","bd4100") //this is SoD's own timer and makes sure all comments fire before the next scripted event kicks in 
+	Global("xxBiff_SoDMurderAccusations","bd4100",0)
+	ReputationLT(Player1,10) //checks for low reputation. Replace this with whatever you want the NPC's reaction to be dependent on 
+	IsValidForPartyDialogue("xxBiff")  
+THEN
+//	RESPONSE #100 //We want Biff to comment always, so we leave these two lines out. Take these in if you want a 50% chance of your NPC not commenting on the murder accusations. 
+//		SetGlobal("xxBiff_SoDMurderAccusations","bd4100",1)
+	RESPONSE #100
+		SetGlobal("xxBiff_SoDMurderAccusations","bd4100",1)
+		SetGlobalTimer("bd_mdd1352_ot_timer","bd4100",ONE_ROUND) //set the timer according to how long the comment is. ONE_ROUND equals ONE_MINUTE = 6 seconds realtime. You can put in the amount of realtime seconds as a number directly.
+		DisplayStringHead("xxBiff",~Well, &lt;CHARNAME&gt; might have not been the friendliest, but I know the script so... Nope, I don't think &lt;PRO_HESHE&gt; did it.~)  
+END
+
+/* second script block: Biff makes a comment in case of higher reputation */
+IF
+	Global("bd_plot","global",591)
+	!GlobalTimerNotExpired("bd_mdd1352_ot_timer","bd4100")
+	Global("xxBiff_SoDMurderAccusations","bd4100",0)
+	!ReputationLT(Player1,10) //checks for high reputation. If you used something else above, here goes the direct opposite of the trigger you used above.
+	IsValidForPartyDialogue("xxBiff")  
+THEN
+//	RESPONSE #100 //uncomment these 2 lines for the original SoD 50% chance
+//		SetGlobal("xxBiff_SoDMurderAccusations","bd4100",1)
+	RESPONSE #100
+		SetGlobal("xxBiff_SoDMurderAccusations","bd4100",1)
+		SetGlobalTimer("bd_mdd1352_ot_timer","bd4100",ONE_ROUND)
+		DisplayStringHead("xxBiff",~Whoa, &lt;CHARNAME&gt;'s such a nice fellow. (And I know the script so... Nope, I don't think &lt;PRO_HESHE&gt; did it.)~)  
+END
+
+</pre>
+
+      <p>In the tp2, this line specifies the patching to bd4100.bcs (note the EXTEND_TOP):</p>
+      <pre class="code">
+/* Biff comments on murder accusation */
+EXTEND_TOP ~bd4100.bcs~ ~%MOD_FOLDER%/baf/xxbd4100.baf~
+EVALUATE_BUFFER
+</pre>
+
+      <h2><a name="toc_2">2. NPCs leave the group after The Incident</a></h2>
+      <p>After the scene with the murder accusation is through, the NPCs leave the group and the PC finds themselves alone in prison.</p>
+	  <p class="info">If we do nothing here, the NPC will be treated like a multiplayer NPC and just be with the PC inside the prison.</p>
+      <p>The leaving of the NPCs is handled by <strong>bdcut61.bcs</strong>. There is the following to be noted for how this is handled: </p>
+	  <ol>
+        <li>Is your NPC supposed to appear after the PC leaves the prison, either to say good-bye or because his story places him into Irenicus Dungeon? If not, you do not need to set the variable in the example below.</li>
+        <li>Is your NPC a continuous NPC that can be met in BGII again? Then you might want to add any "NPC left the group" or "romance no longer open" variables you need to set, either because your NPC makes a reappearance in BGII and you want to make them continuous, or to account for the game being continued in BGII and you don't want the player to start the game with any misleading variables etc.</li>
+      </ol>
+	  <p>We add the following for Biff (xxbdcut61.baf):</p>
+      <pre class="code">
+/*xxbdcut61.baf: Biff leaves the group after the murder accusations */
+IF
+	InParty("xxBiff")  
+THEN
+	RESPONSE #100
+		CutSceneId("xxBiff")
+		ActionOverride("xxBiff",LeaveParty())
+		SetGlobal("xxBiff_SoDparty_epilogue","GLOBAL",1) //This will make Biff appear after the PC was released from prison.
+		SetGlobal("xxBiff_Kickout","GLOBAL",1) //this is for inner mod detection, for example if the game's a continuous EET game. Put here whatever you need for your own mod.
+		ActionOverride("xxBiff",DestroyAllFragileEquipment(ADAMANTINE)) //this destroys all drow equipment, just in case the NPC had any.
+END
+</pre>
+
+      <p>And to patch bdcut61.bcs with our xxbdcut61.baf, we need this line in the tp2 (note the EXTEND_TOP):</p>
+      <pre class="code">
+/* after PC gets arrested for murder: Biff leaves party */
+EXTEND_TOP ~bdcut61.bcs~ ~%MOD_FOLDER%/baf/xxbdcut61.baf~
+  EVALUATE_BUFFER
+</pre>
+
+      <h2><a name="toc_3">3. Make Biff wait at the Prison Exit</a></h2>
+      <p>After the PC's escape from the prison Imoen and the other NPCs of the "BGII canon" party will be waiting outside in the wilderness: Jaheira and Khalid, and Dynaheir and Minsc. The area is bd6200.are. If your NPC is not supposed to be captured by Irenicus, then you are practically done, because any NPC appearing now will be dragged into the abduction scene and will find themselves inside Irenicus Dungeon (or be killed) - unless you make your NPC leave after Imoen brought the PC to the waiting group outside of the exit. Biff should be here, so we need to add him to <strong>bd6200.bcs</strong>.</p>
+      <p>We add two script blocks to the script:</p>
+      <ol>
+        <li>The first one will put Biff to the meeting place outside the prison.</li>
+        <li>The second one lets him move with the group when they start walking after the greetings.</li>
+      </ol>
+      <p>The according xxbd6200.baf looks like this:</p>
+      <pre class="code">
+/* end of SoD. Biff will be at the meeting place */
+
+IF
+	Global("chapter","global",13)
+	Global("xxBiff_SoDEndMove","bd6200",0)
+	!Dead("xxBiff")  
+	!InPartyAllowDead("xxBiff")
+	Global("xxBiff_SoDparty_epilogue","GLOBAL",1) //this is the variable that was set in the xxbdcut61.baf
+THEN
+	RESPONSE #0
+		SetGlobal("xxBiff_SoDEndMove","bd6200",1)
+		MoveGlobal("bd6200","xxBiff",[xxx.yyy]) //chose coordinates near the meeting place: the clearing at the southeast. For example: Minsc is waiting at [1660.1120]
+		ActionOverride("xxBiff",SetSequence(SEQ_READY)) //from IESDP: This action instructs the active creature to perform the specified animation sequence. Values are from seq.ids.
+		ActionOverride("xxBiff",Face(NW)) //depending on where the NPC stands, they should face the north east
+		ActionOverride("xxBiff",SetGlobal("bd_joined","locals",0)) //we remember these from tutorial 1
+		ActionOverride("xxBiff",SetGlobal("bd_retreat","locals",0))
+		ActionOverride("xxBiff",SaveObjectLocation("LOCALS","bd_default_loc",Myself))
+		ReallyForceSpellDeadRES("bdrejuve","xxBiff")  // heals and removes spell effects
+		ChangeEnemyAlly("xxBiff",NEUTRAL)  
+		ChangeSpecifics("xxBiff",ALLIES)  
+		ActionOverride("xxBiff",ChangeAIScript("xxBiffs",OVERRIDE))
+		ActionOverride("xxBiff",ChangeAIScript("",CLASS))
+		ActionOverride("xxBiff",ChangeAIScript("SHOUT",RACE))
+		ActionOverride("xxBiff",ChangeAIScript("BDFIGH01",GENERAL)) //Biff gets the fighter script. Have a look at bdparty.bcs to see what other scripts are available for the different classes.
+		ActionOverride("xxBiff",ChangeAIScript("",DEFAULT))
+		ActionOverride("xxBiff",SetDialog("xxBiffsP")) //we need the dialogue because all present NPCs comment on the PC's escape
+		Continue()
+END
+
+/* Biff moves across area with the others */
+IF
+	Global("bd_plot","global",670)
+	Global("xxBiff_SodMovesbd6200","bd6200",0)
+	InMyArea("xxBiff")  
+THEN
+	RESPONSE #100
+		SetGlobal("xxBiff_SodMovesbd6200","bd6200",1)
+		ActionOverride("xxBiff",MoveToPoint([1410.1410])) //all NPCs move towards this point, no need for other coordinates
+		Continue()
+END
+</pre>
+      <p>And for the tp2 (note the EXTEND_TOP):</p>
+      <pre class="code">
+/* Biff waits in front of the prison exit */
+EXTEND_TOP ~bd6200.bcs~ ~%MOD_FOLDER%/baf/xxbd6200.baf~
+  EVALUATE_BUFFER
+</pre>
+
+      <h2><a name="toc_4">4. Biff should say something to the PC after the escape</a></h2>
+      <p>After the escape from the prison and meeting with the canon NPC party, Imoen initiates dialogue and every NPC present says something to the recent events. We want Biff to say something here, too, so we need to I_C_T into <strong>bdimoen.dlg state 99</strong>. And since Biff isn't in the party at that point, this interjection needs to go into his kickout dialogue <strong>xxBiffsP.dlg</strong>.</p>
+      <p>The following is what we put into a .d file for compilation. The first part is for the "assassin ending" (Global("bd_player_exiled","global",0)): the PC didn't convince the Dukes of their innocence and had to flee from the prison with the help of an unknown assassin. The second one is for the ending where the Dukes set the PC free and the PC is guided to the exit by an FF soldier (for !Global("bd_player_exiled","global",0)). Note: I_C_T3 means that there are several interjections with different triggers, but all of them should trigger if the conditions are met (and not the first one determines whether any of them shows, as it is for I_C_T):</p>
+      <pre class="code">
+/* PC escaped from the prison. All NPCs say a greeting */
+I_C_T3 BDIMOEN 99 xxBiff_SoDMurderComment 
+== xxBiffsP IF ~Global("bd_player_exiled","global",0)
+!Dead("xxBiff")
+InMyArea("xxBiff")
+!InParty("xxBiff")~ THEN ~Good you made it out. Sorry about all the blood.~
+== xxBiffsP IF ~!Global("bd_player_exiled","global",0)
+!Dead("xxBiff")
+InMyArea("xxBiff")
+!InParty("xxBiff")~ THEN ~Good to see you. I like this ending way better!~
+END
+</pre>
+
+
+      <h2><a name="toc_5">5. Biff should rejoin the group (if possible)</a></h2>
+      <p>After the PC and all present NPCs start moving and the scene fades to black, the cutscene <strong>bdcut64x.bcs</strong> handles the rejoining of the canon NPCs (Imoen - first time she joins in SoD!, Minsc, Dynaheir, Jaheira, Khalid) before calling bdcut65.bcs which transfers and moves the group onto bd6100.are, the final abduction area. This takes into consideration whether there is enough empty slots for the NPCs (for e.g. multiplayer game with more than one protagonist), and also whether the canon NPCs are actually still alive and present.</p>
+	  <p>This means, that with all canon NPCs alive (Imoen will be alive no matter what, but the other four might not be alive any more and won't be present then), the group is full with 6 people, and there is no "room" for your NPC. Still, if there is room, they should join the party.</p>
+	  <p>For Biff, we want the following to happen: if there is still room in the group (NumInPartyLT(6)), he should join. By joining, he will be present in the final abduction scene as a party member. For BG:EE with SoD, what follows is the actual abduction scene where the group walks into a clearing in the forest, the player gets the controls back for 2 seconds, then Imoen says it feels a little off and the endmovie starts.</p>
+	  <p class="info">If Biff doesn't join, he will remain in the bd6200.are, scripting wise. I couldn't get the cutscene to work if Biff is supposed to follow albeit not in party, he either starts walking long after everyone else or the cutscene didn't work properly. For SoD this is sufficient, though, as the player has hardly time to realize the missing of a non-party member. For EET, though, there is a lengthier cutscene which shows the actual fight prior to the abduction, and there the presence of your NPC might be interesting because the player might actually notice the absence. The tutorial will be updated with EET content as soon as I figured it out how to do it.</p>
+	  <p>This is what we add to bdcut64x.bcs for Biff:</p>
+      <pre class="code">
+/* xxbdcut64x.baf
+Let Biff join after PC escaped from prison (if there is still a free slot in the group) */
+IF
+	Global("xxBiff_SoDEndMove","bd6200",1) //same variable as used in xxbd6200.baf to spawn Biff!
+	Global("bd_party_check","bd6200",5) //all canon NPCs were already considered
+	!Dead("xxBiff")  
+	!InParty("xxBiff") 
+	InMyArea("xxBiff") 
+	NumInPartyLT(6)
+THEN
+	RESPONSE #100
+		CutSceneId(Player1)
+		SetGlobal("xxBiff_SoDEndMove","bd6200",2)
+		ActionOverride("xxBiff",JoinParty())
+		SmallWait(10)
+		Continue()
+END
+
+</pre>
+      <p>And for the tp2:</p>
+      <pre class="code">
+/* (T2) Let Biff join after PC escaped from prison (if there is still a free slot in the group) */
+EXTEND_TOP ~bdcut64x.bcs~ ~%MOD_FOLDER%/baf/xxbdcut64x.baf~
+  EVALUATE_BUFFER
+</pre>
+
+ 
+	  
+      <h2><a name="toc_12">Credits, Used Tools, and Helpful Links</a></h2>
+	  <p>Thank you to Argent77 for the html template!</p>
+	  <p>Used Tools:</p
+      <p><a href="https://github.com/Argent77/NearInfinity/releases/latest">Near Infinity</a></p>
+	  <p><a href="https://gibberlings3.github.io/iesdp/index.htm">IESDP</a></p>
+      <p><a href="http://tools.stefankueng.com/grepWin.html">grepWin</a></p>
+      <p><a href="https://notepad-plus-plus.org/">Notepad++</a></p>
+	  <p>Links:</p>
+      <p><a href="https://forums.beamdog.com/">BeamDog Forums</a></p>
+      <p><a href="https://www.gibberlings3.net/">The Gibberlings 3</a></p>
+      <p><a href="https://www.baldurs-gate.de/index.php">Kerzenburgforum</a></p>
+      <p><a href="http://www.spellholdstudios.net/">Spellhold Studios</a></p>
+      <p><a href="http://www.pocketplane.net/mambo/">Pocket PLane Group</a></p>
+      <p><a href="http://forums.blackwyrmlair.net/index.php?showtopic=113">Prefix Reservation at Black Wyrm Lair Forums</a></p>
+	  
+	  
+      <h2><a name="toc_13">Version History</a></h2>
+          <p>Version 1:</p>
+          <ul>
+            <li>public release</li>
+          </ul>
+    </div>  <!-- End content wrapper -->
+  </body>
+</html>
