@@ -4,7 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="description" content="This tutorial deals with how to move your NPC from one SoD area to another depending on the campaign's progress if they are not in the group. As an example NPC, Biff the Understudy will be the NPC in this guide!"/>
     <meta name="keywords" content="Baldur's Gate, BG1, SoD, Modding, Tutorial, NPC, Biff the Understudy"/>
-    <title>Modding Tutorial: Automatic Transition from NPCs between Camps in SoD</title>
+    <title>Modding Tutorial Part 1: Automatic Transition of NPCs into SoD and between Camps in SoD</title>
     <style type="text/css">
       body {
         margin: 0px;
@@ -108,30 +108,31 @@
 
   <body>
     <div id="wrap"> <!-- Start content wrapper -->
-      <h1>Modding Tutorial: Automatic Transition from NPCs between Camps in SoD</h1>
+      <h1>Modding Tutorial Part 1: Automatic Transition of NPCs into SoD and between Camps in SoD</h1>
 	  
-	<p>Version 2, by jastey</p>
+	<p>Version 3, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
         <ol class="toc">
-          <li><a href="#toc_1">Make Biff leave party after Korlasz's Crypt is cleared</a></li>
-          <li><a href="#toc_2">Moving Biff to his new meeting point in BG city</a></li>
-          <li><a href="#toc_3">Make Biff wait outside the Ducal Palace when PC marches against crusade</a></li>
-          <li><a href="#toc_4">Move Biff to first camp in Coast Way Crossing (bd1000.are)</a></li>
-          <li><a href="#toc_5">Move Biff to 2nd camp in Troll Claw Woods (bd7100.are)</a></li>
-          <li><a href="#toc_6">Move Biff to the Coalition Camp in bd3000.are</a></li>
-          <li><a href="#toc_7">Make Biff return to camp if told so after being kicked out in wilderness area</a></li>
-          <li><a href="#toc_8">Make Biff follow if kicked out in Avernus</a></li>
-          <li><a href="#toc_9">Move Biff to Dragonspear Castle interior after PC returns from Avernus</a></li>
-          <li><a href="#toc_10">Biff's SoD greetings dialogue with the needed local variables</a></li>
-          <li><a href="#toc_11">Biff's SoD kickout dialogue with the needed local variables</a></li>
-          <li><a href="#toc_12">Credits, Used Tools, and Helpful Links</a></li>
-          <li><a href="#toc_13">Version History</a></li>
+          <li><a href="#toc_1">Transition into SoD: change Biff's OVERRIDE script to the SoD one for a continuous BG:EE-SoD game</a></li>
+          <li><a href="#toc_2">Make Biff leave party after Korlasz's Crypt is cleared</a></li>
+          <li><a href="#toc_3">Moving Biff to his new meeting point in BG city</a></li>
+          <li><a href="#toc_4">Make Biff wait outside the Ducal Palace when PC marches against crusade</a></li>
+          <li><a href="#toc_5">Move Biff to first camp in Coast Way Crossing (bd1000.are)</a></li>
+          <li><a href="#toc_6">Move Biff to 2nd camp in Troll Claw Woods (bd7100.are)</a></li>
+          <li><a href="#toc_7">Move Biff to the Coalition Camp in bd3000.are</a></li>
+          <li><a href="#toc_8">Make Biff return to camp if told so after being kicked out in wilderness area</a></li>
+          <li><a href="#toc_9">Make Biff follow if kicked out in Avernus</a></li>
+          <li><a href="#toc_10">Move Biff to Dragonspear Castle interior after PC returns from Avernus</a></li>
+          <li><a href="#toc_11">Biff's SoD greetings dialogue with the needed local variables</a></li>
+          <li><a href="#toc_12">Biff's SoD kickout dialogue with the needed local variables</a></li>
+          <li><a href="#toc_13">Credits, Used Tools, and Helpful Links</a></li>
+          <li><a href="#toc_14">Version History</a></li>
         </ol>
       </div>
 
-      <p class="info">This tutorial deals with how to move your NPC from one SoD area to another depending on the campaign's progress if they are not in the group. As an example NPC, Biff the Understudy will be the NPC in this guide!</p>
+      <p class="info">This tutorial deals with the transition of an NPC from BG:EE to SoD and how to move your NPC from one SoD area to another depending on the campaign's progress if they are not in the group. As an example NPC, Biff the Understudy will be the NPC in this guide!</p>
       <p><strong>Some nomenclature:</strong></p>
       <table>
         <col width="180" />
@@ -177,9 +178,35 @@
           <td>area coordinates for Biff's camp spot in bd3000.are, used in xxbd3000.baf and xxbdparty.baf</td>
         </tr>
       </table>
-
-      <h2><a name="toc_1">1. Make Biff leave party after Korlasz's Crypt is cleared</a></h2>
+	  
+	  <h2><a name="toc_1">1. Transition into SoD: change Biff's OVERRIDE script to the SoD one for a continuous BG:EE-SoD game</a></h2>
+      <p class="info">This section is only of interest if your NPC was also available in BG:EE. If your NPC is a pure SoD NPC, you can skip this section.</p>
+	  <p>If your NPC was also available in BG:EE, it is good practise to change the OVERRIDE script to a SoD specific one upon the transition into SoD. The advantages are simple: you don't have to take care that events related to BG:EE story or areas do not fire any more. Of course you can also continue using the former OVERRIDE script and make sure by using the according triggers that only SoD related actions will be triggered.</p>	  
+	  <p class="info">Sidenote: if you want to distinguish between BG:EE and SoD, an easy way to detect SoD in a BG:EE+SoD game is by using the unique variable "GlobalGT("bd_plot","global",0)" which is set to "2" at the beginning of the SoD intro cutscene (where the two followers of Korlasz are talking beside the chasm: "Sarevok's dead. Everything's a mess. We should have gotten out of the city days ago.") This might be more useful for dialogues, though (PID, for example), since it's good practice to just use a separate script for SoD. (For EET, you can use "Global("ENDOFBG1","GLOBAL",1)" for the SoD portion of the game, which will be set to "2" in BGII.) And while we are at it: after finishing Korlasz' crypt and the PC being woken up by Imoen in the Ducal Palace, the check variable for SoD would be "GlobalGT("BD_PLOT","GLOBAL",50)" - just in case you want to count the intro dungeon to "BG:EE", content wise.</p>
+	  <p>After the end of BG:EE, the transition to SoD is done first by the cutscene "bdsodtrn.bcs" (triggered by Sarevok's death in AR0125.bcs) which sets the Global("SOD_fromimport","GLOBAL",1) with which the continuous game will be detected later, resurrects and completely heals all NPCs, and starts the SoD campaign ("MoveToCampaign("SoD")"). After that, the bd0120.bcs does party rearrangements depending on who is present (change Viconia's portrait, remove Imoen from the party, substituting her with Safana in case the party lacks a thief with either open locks or detect traps ability etc.) and calls the cutscene bdintro.bcs, which makes newly spawned replacement NPCs join the party and sets the NPCs override scripts and dialogues to the SoD ones.</p>
+	  <p>So, if your NPC should use SoD specific joined dialogue and OVERRIDE script, we need to patch the <strong>bdintro.bcs</strong> with the following (with Biff being our example NPC):</p>
+	  <pre class="code">
+/* xxbdintro.baf
+transition from BG:EE to SoD: change Biff's Joined dialogue and OVERRIDE script */
+IF
+	Global("SOD_fromimport","global",1)
+	InMyArea("xxBiff")  
+THEN
+	RESPONSE #100
+		CutSceneId(Player1)
+		ActionOverride("xxBiff",SetDialog("xxBiffJ")) //Biff's SoD joined dialogue
+		ActionOverride("xxBiff",ChangeAIScript("xxBiffs",OVERRIDE)) //Biff's SoD script
+END
+	  </pre>
+	  <p>With the line for patching in the tp2 (note the EXTEND_TOP):</p>
+      <pre class="code">
+/* transition from BG:EE to SoD: change Biff's Joined dialogue and OVERRIDE script */
+EXTEND_TOP ~bdintro.bcs~ ~%MOD_FOLDER%/baf/xxbdintro.baf~
+  EVALUATE_BUFFER
+</pre>
+      <h2><a name="toc_2">2. Make Biff leave party after Korlasz's Crypt is cleared</a></h2>
       <p>SoD starts with the party from BG1 being in Korlasz's Crypt, the "last follower" of Sarevok. After Korlsz's tomb is cleared, all joinable NPCs leave the group and the PC is transferred to the Ducal Palace (bd0103.are).</p>
+	  <p class="info">This you only need if your NPC was already available in BG:EE, or if you let him join in Korlasz's crypt. If your NPC joins in BG city or later, you can skip this and continue with top 3.</p>
       <p>This transition is done by <strong>bd0103.bcs</strong>, i.e. the area script of the Ducal Palace, 3<sup>rd</sup> floor where the PC finds him/herself. (Origially, the transition is started in bdimoen.dlg which calls bdcut00z.bcs which just transfers the whole party to bd0103.are. Then all the sorting and moving and leaving is done by bd0103.bcs.)</p>
       <p>The script bd0103.bcs does the following for BeamDog and BioWare NPCs:</p>
       <ol>
@@ -216,10 +243,10 @@ END
       <pre class="code">
 /* after Korlasz is defeated: PC is moved to Ducal Palace. Joined NPCs leave */
 EXTEND_TOP ~bd0103.bcs~ ~%MOD_FOLDER%/baf/xxbd0103.baf~
-EVALUATE_BUFFER
+  EVALUATE_BUFFER
 </pre>
 
-      <h2><a name="toc_2">2. Moving Biff to his new meeting point in BG city</a></h2>
+      <h2><a name="toc_3">3. Moving Biff to his new meeting point in BG city</a></h2>
       <p>Now, your NPC should be recruitable somewhere inside BG city. As an example, Biff will be waiting in front of the Ducal Palace (<strong>bd0010.are</strong>) where the PC can meet him after leaving for the first time.</p>
       <p>This would also be the first meeting point for players who started a new SoD game. Unless, of course, you want your NPC to start in Korlasz's Tomb for a new game also, then you'll have to add them to bd0130.bcs or bd0120.bcs, instead.</p>
       <p>Open Near Infinity and look at the bd0010.are (open the graphical view). Chose a good spot and note down the coordinates that NI shows at the right bottom side. Let's call them [x0.y0] for now.</p>
@@ -256,7 +283,7 @@ IF
 THEN
   RESPONSE #100
     SetGlobal("xxBiff_MoveCamp","bd0010",1)
-    SetGlobal("xxBiffSpawn","GLOBAL",1)
+    SetGlobal("xxBiffSpawn","GLOBAL",1) //we set this so he will be moved to bd0101.are, not spawned anew
     MoveGlobal("bd0010","xxBiff",[x0.y0])
     ActionOverride("xxBiff",Face(N))    //or any other direction depending on the coordinates
     ApplySpellRES("bdrejuve","xxBiff")  //completely heals and removes all spell effects
@@ -281,7 +308,7 @@ EXTEND_BOTTOM ~bd0010.bcs~ ~%MOD_FOLDER%/baf/xxbd0010.baf~ EVALUATE_BUFFER
 </pre>
       <p>OK, so now he is waiting in front of the Palace. But what if the PC doesn't take him along now but tells him to wait? Then Biff needs to move while the campaign progresses.</p>
 
-      <h2><a name="toc_3">3. Make Biff wait outside the Ducal Palace when PC marches against crusade</a></h2>
+      <h2><a name="toc_4">4. Make Biff wait outside the Ducal Palace when PC marches against crusade</a></h2>
       <p>First move: Biff should be still outside the Palace when the PC moves out against the crusaders. If your NPC was elsewhere in the city beforehand, he could wait here, now.</p>
       <p>Once the PC decides to move out against the Crusade, the area outside in front of the Ducal Palace is no longer bd0010.are, but <strong>bd0101.are</strong>. We want to meet up Biff here so he should be here, too. Note: The PC can also leave for the Crusaders without going into the city to recruit NPCs, they will be available later nontheless. So will be Biff!</p>
       <p>So, we have three possible cases here:</p>
@@ -342,16 +369,16 @@ END
       <pre class="code">
 /* Biff is in front of Ducal Palace if told to wait - or Player marches onto the battle without recruiting NPCs in Baldur' Gate: Biff will be in front of the palace, too */
 EXTEND_BOTTOM ~bd0101.bcs~ ~%MOD_FOLDER%/baf/xxbd0101.baf~
-EVALUATE_BUFFER
+  EVALUATE_BUFFER
 </pre>
 
-      <h2><a name="toc_4">4. Move Biff to first camp in Coast Way Crossing (bd1000.are)</a></h2>
+      <h2><a name="toc_5">5. Move Biff to first camp in Coast Way Crossing (bd1000.are)</a></h2>
       <p>So, PC is off to the first war camp, bd1000.are. Biff needs to come to the camp by himself in case he is not in party, i.e. he was left standing in front of the Ducal Palace but is supposed to follow.</p>
       <p>From now on, we only consider the moving of the existent cre. Spawning of a new cre for a new SoD game is no longer necessary, because he was already spawned in bd0010.are or bd0101.are, so now we can just move him with MoveGlobal().</p>
       <p>The first war camp is in Coast Way Crossing, <strong>bd1000.are</strong>. Good-aligned NPCs usually gather near Rayphus Goodtree who is standing at [600.3725]. Evil NPCs seem to gather to the left in front of the tents, but of course you can put your NPC wherever you want. (You could even let him walk around, like Glint does.) Open the area with Near Infinity and note down the coordinates you want your NPC to wait at, we will call them [x1.y1] for now.</p>
       <p>Then we create the xxbd1000.baf with the spawn script block which needs to be patched to <strong>bd1000.bcs</strong>:</p>
       <pre class="code">
-/* xx1000.baf
+/* xxbd1000.baf
 Biff moves to first war camp at Coast Way Crossing, bd1000.are */
 
 IF
@@ -382,10 +409,10 @@ END
       <pre class="code">
 /* Biff moves to war camp in bd1000.are */
 EXTEND_BOTTOM ~bd1000.bcs~ ~%MOD_FOLDER%/baf/xxbd1000.baf~
-EVALUATE_BUFFER
+  EVALUATE_BUFFER
 </pre>
 
-      <h2><a name="toc_5">5. Move Biff to 2<sup>nd</sup> camp in Troll Claw Woods (bd7100.are)</a></h2>
+      <h2><a name="toc_6">6. Move Biff to 2<sup>nd</sup> camp in Troll Claw Woods (bd7100.are)</a></h2>
       <p>The next camp is set in the Troll Claw Woods, <strong>bd7100.are</strong>. Look up the coordinates with NI, in this tutorial we will use the placeholder [x2.y2]. xxbd7100.baf will contain Biff's spawn script block that needs to be patched to <strong>bd7100.bcs</strong>:</p>
       <pre class="code">
 /* xxbd7100.baf: */
@@ -417,10 +444,10 @@ END
       <pre class="code">
 /* and the same for the next camp in bd7100.are: */
 EXTEND_BOTTOM ~bd7100.bcs~ ~%MOD_FOLDER%/baf/xxbd7100.baf~
-EVALUATE_BUFFER
+  EVALUATE_BUFFER
 </pre>
 
-      <h2><a name="toc_6">6. Move Biff to the Coalition Camp in bd3000.are</a></h2>
+      <h2><a name="toc_7">7. Move Biff to the Coalition Camp in bd3000.are</a></h2>
       <p>The last camp the coalition moves to is the big Coalition Camp in <strong>bd3000.are</strong>. Again, Biff will follow in case he wasn't in the party upon transition. Look up bd3000.are in NI and note down the coordinates you want your PC to wait at, we will call them [x3.y3] for this tutorial.</p>
       <p>xxbd3000.baf (which will be patched to <strong>bd3000.bcs</strong>) with Biff's spawn script inside the Coalition Camp:</p>
       <pre class="code">
@@ -453,12 +480,12 @@ END
 </pre>
       <p>And for the tp2:</p>
       <pre class="code">
-/* Last camp is in bd3000.are. In case Biff was never in party or kicked out to wait somewhere else, he will now be back in the (new) camp. */
+/* Last camp is in bd3000.are. In case Biff was never in party or kicked out to wait somewhere else, he will also be back in the (last) camp. */
 EXTEND_BOTTOM ~bd3000.bcs~ ~%MOD_FOLDER%/baf/xxbd3000.baf~
-EVALUATE_BUFFER
+  EVALUATE_BUFFER
 </pre>
 
-      <h2><a name="toc_7">7. Make Biff return to camp if told so after being kicked out in wilderness area</a></h2>
+      <h2><a name="toc_8">8. Make Biff return to camp if told so after being kicked out in wilderness area</a></h2>
       <p>So, Biff will move with the camps in case he was left standing, either in a camp itself or somewhere else. But there is more in the SoD scripting we can take advantage of. For example, what if we want Biff to return to the current camp when kicked out in some wilderness area? And which camp is the current one, anyway?… Fortunately, SoD has means to detect this.</p>
       <p>Let's have a look at <strong>bdparty.bcs</strong>. This script is set by dplayer2.bcs if an NPC is kicked out of the party in SoD. It makes every NPC talk to the PC after being kicked out (or leave if unhappy) and also sets "Global("bd_joined","locals",1)" which we will use in Biff's kickout dialogue.</p>
       <p>The script also sets the appropriate GENERAL script (depending on your NPC's class), RACE, and DEFAULT scripts and resets several local variables.</p>
@@ -476,11 +503,11 @@ IF
     !TriggerOverride("ff_camp",IsOverMe("xxBiff"))
 THEN
   RESPONSE #2
-    EscapeAreaMove("bd1000",x1,y1,NE) //coordinates as used in the other scripts above!
+    EscapeAreaMove("bd1000",x1,y1,N) //coordinates as used in xxbd1000.baf
   RESPONSE #3
-    EscapeAreaMove("bd7100",x2,y2,NW)
+    EscapeAreaMove("bd7100",x2,y2,N) //coordinates as used in xxbd7100.baf
   RESPONSE #4
-    EscapeAreaMove("bd3000",x3,y3,S)
+    EscapeAreaMove("bd3000",x3,y3,N) //coordinates as used in xxbd3000.baf
 END
 
 /* this sets the "bd_npc_camp" variable to "2" as soon as Biff is in one of the camps again: bg1000.are, bg7100.are, bd3000.are – and will make bdparty.bcs set the correct fighting script etc. */
@@ -493,13 +520,13 @@ IF
 THEN
   RESPONSE #2
     SetGlobal("bd_npc_camp","locals",2)
-    SaveLocation("LOCALS","bd_default_loc",[x1.y1]) //coordinates as used in the other scripts above!
+    SaveLocation("LOCALS","bd_default_loc",[x1.y1]) //coordinates as used in xxbd1000.baf
   RESPONSE #3
     SetGlobal("bd_npc_camp","locals",2)
-    SaveLocation("LOCALS","bd_default_loc",[x2.y2])
+    SaveLocation("LOCALS","bd_default_loc",[x2.y2]) //coordinates as used in xxbd7100.baf
   RESPONSE #4
     SetGlobal("bd_npc_camp","locals",2)
-    SaveLocation("LOCALS","bd_default_loc",[x3.y3])
+    SaveLocation("LOCALS","bd_default_loc",[x3.y3]) //coordinates as used in xxbd3000.baf
     ChangeAIScript("bdasc3",CLASS)
 END
 </pre>
@@ -507,10 +534,10 @@ END
       <pre class="code">
 /* return to camp if kicked out */
 EXTEND_TOP ~bdparty.bcs~ ~%MOD_FOLDER%/baf/xxbdparty.baf~
-EVALUATE_BUFFER
+  EVALUATE_BUFFER
 </pre>
 
-      <h2><a name="toc_8">8. Make Biff follow if kicked out in Avernus</a></h2>
+      <h2><a name="toc_9">9. Make Biff follow if kicked out in Avernus</a></h2>
       <p>We are not done with script additions yet. If kicked out in the hell dimension (in area bd4700.are to make room for Caelar), the NPC does not move directly back to camp but is moved with the party in the appropriate cutscenes <strong>bdcut58.bcs</strong> and <strong>bdcut59b.bcs</strong>.</p>
       <p>This is the addition for Biff to bdcut58.bcs, where all characters are moved back to the portal in bd4400.are:</p>
       <pre class="code">
@@ -532,13 +559,13 @@ END
       <pre class="code">
 /* Biff is kicked in hell dimension - teleport to last hell area bd4400.are */
 EXTEND_TOP ~bdcut58.bcs~ ~%MOD_FOLDER%/baf/xxbdcut58.baf~
-EVALUATE_BUFFER
+  EVALUATE_BUFFER
 </pre>
 
-      <h2><a name="toc_9">9. Move Biff to Dragonspear Castle interior after PC returns from Avernus</a></h2>
+      <h2><a name="toc_10">10. Move Biff to Dragonspear Castle interior after PC returns from Avernus</a></h2>
       <p><strong>bdcut59b.bcs</strong> deals with moving PC and all NPCs – joined or left standing in Avernus - back into the Dragonspear Castle interior (<strong>bd4300.are</strong>) which is the last area before the “end game” starts where none of the other areas are accessible any more (for plain SoD). It also deals with NPCs not in party (left standing in the last camp or some wilderness area, not in Avernus) being moved here.</p>
       <p>Thus, if Biff was kicked out of the party in Avernus (bd4700.are), the variable Global("xxBiff_kicked_bd4700","global",1) was set by the kickout dialogue xxBiffsP.dlg as shown below, and he should be near the portal (because he just came through it since he was in Avernus even without being in the party).</p>
-      <p>For Global("xxBiff_kicked_bd4700","global",0), he can be wherever he wants to be - maybe in the room to the northeast since that's where most of the other NPCs seem to b waiting.</p>
+      <p>For Global("xxBiff_kicked_bd4700","global",0), he can be wherever he wants to be - maybe in the room to the northeast since that's where most of the other NPCs seem to be waiting.</p>
       <p>This is what <strong>bdcut59b.bcs</strong> needs to be patched with for Biff:</p>
       <pre class="code">
 /* xxbdcut59b.baf:
@@ -571,11 +598,11 @@ END
       <pre class="code">
 /* Biff is kicked in hell dimension or was waiting elsewhere- teleport to Dragonspear Castle interior (bd4300.are) after PC returns from Avernus */
 EXTEND_TOP ~bdcut59b.bcs~ ~%MOD_FOLDER%/baf/xxbdcut59b.baf~
-EVALUATE_BUFFER
+  EVALUATE_BUFFER
 </pre>
       <p>And that was all we needed for script patching for moving Biff until this point. Only thing missing are the according greeting dialogue xxBiffs.dlg and kickout dialogue xxBiffsP.dlg.</p>
 
-      <h2><a name="toc_10">10. Biff's SoD greetings dialogue with the needed local variables</a></h2>
+      <h2><a name="toc_11">11. Biff's SoD greetings dialogue with the needed local variables</a></h2>
       <p>What we still need is the greetings dialogue xxBiffs.dlg and the kickout dialogue xBiffP.dlg with all the used variables from above.</p>
       <p>For the SoD greeting's dialogue, the following would do. Note that it sets “Global("xxBiffWait","GLOBAL",1)” if Biff should wait for the PC which is used in the script block in xxbd0101.baf above as well as the GLOBAL variable "xxBiffSpawn" which is set to “1” if he is spawned for a new game.</p>
       <pre class="code">
@@ -583,31 +610,26 @@ EVALUATE_BUFFER
 
 BEGIN xxBiffs
 
-IF ~GlobalLT("xxBiffSpawn","GLOBAL",2)~ THEN sod_meeting
-  SAY ~<CHARNAME>! Can I join you again?~
+/* we need an always true "can I join you" block, because this dialogue might also trigger if Biff was left standing in BG city and is now waiting in front of the Ducal Palace when the PC is leaving for the crusade */
+IF ~True()~ THEN sod_meeting
+  SAY ~&lt;CHARNAME&gt;! Can I join you?~
   ++ ~Sure!~ + sod_meeting_01
   ++ ~Not right now, but make sure to stay around in case I need you later!~ + sod_meeting_02
 END
 
 IF ~~ THEN sod_meeting_01
   SAY ~Thank you!~
-  IF ~~ THEN DO ~SetGlobal("xxBiffSpawn","GLOBAL",2)
-  JoinParty()~ EXIT
+  IF ~~ THEN DO ~JoinParty()~ EXIT
 END
 
 IF ~~ THEN sod_meeting_02
   SAY ~I will do that.~
-  IF ~~ THEN DO ~SetGlobal("xxBiffWait","GLOBAL",1) SetGlobal("xxBiffSpawn","GLOBAL",2)~ EXIT
+  IF ~~ THEN EXIT
 END
 
-IF ~Global("xxBiffWait","GLOBAL",1)~ THEN sod_meeting_03
-  SAY ~Can I come along now?~
-  ++ ~Yes, join me.~ + sod_meeting_01
-  ++ ~Not right now, but make sure to stay around in case I need you later!~ + sod_meeting_02
-END
 </pre>
 
-      <h2><a name="toc_11">11. Biff's SoD kickout dialogue with the needed local variables</a></h2>
+      <h2><a name="toc_12">12. Biff's SoD kickout dialogue with the needed local variables</a></h2>
       <p>SoD uses the kickout dialogue, joined dialogue and dream script defined in the BDDIALOG.2DA. For Biff, the SoD kickout dialogue will be xxBiffsP.dlg.</p>
       <p>The kickout dialogue uses the following variables:</p>
       <p><strong>Global("bd_joined","locals",1)</strong>: will be set by DPLAYER2.bcs upon kickout and can be used to detect a kickout to trigger the “Do you really want me to go?” dialogue. Needs to be set to “0” after the NPC is told to leave the group.</p>
@@ -622,6 +644,7 @@ BEGIN ~xxBiffsP~
 
 /* If kicked out in Avernus (so Caelar can join) in bd4700.are
 This sets Global("xxBiff_kicked_bd4700","global",1) which is used in xxbdcut59b.baf */
+/* Biff can't go home from here - so he will stay and say something brave. */
 IF ~AreaCheck("bd4700")
     GlobalLT("bd_plot","global",570)~ THEN BEGIN kickout_1
   SAY ~Sure, er, I'll stay around... and fight.~
@@ -677,10 +700,11 @@ END
       <p>And that would be all – for now. What is still missing is the moving around and commenting on the events of Biff in the cutscenes at the end of SoD. I am planning on writing a tutorial for that, too.</p>
 
 	  
-      <h2><a name="toc_12">12. Credits, Used Tools, and Helpful Links</a></h2>
+      <h2><a name="toc_13">13. Credits, Used Tools, and Helpful Links</a></h2>
 	  <p>Thank you to Argent77 for turning this tutorial into a html file!</p>
 	  <p>Used Tools:</p
       <p><a href="https://github.com/Argent77/NearInfinity/releases/latest">Near Infinity</a></p>
+	  <p><a href="https://gibberlings3.github.io/iesdp/index.htm">IESDP</a></p>
       <p><a href="http://tools.stefankueng.com/grepWin.html">grepWin</a></p>
       <p><a href="https://notepad-plus-plus.org/">Notepad++</a></p>
       <p><a href="http://www.gamebanshee.com/baldursgate/walkthrough/sod-korlaszstomb.php">SoD Walkthrough on GameBanshee</a></p>
@@ -693,7 +717,15 @@ END
       <p><a href="http://forums.blackwyrmlair.net/index.php?showtopic=113">Prefix Reservation at Black Wyrm Lair Forums</a></p>
 	  
 	  
-      <h2><a name="toc_13">13. Version History</a></h2>
+      <h2><a name="toc_14">14. Version History</a></h2>
+          <p>Version 3:</p>
+          <ul>
+            <li>fixed missing greetings dialogue in case Biff joined the party in BG city and was left standing again but should join the party then before leaving for the crusade (greetings dialogue xxBiffs.d was changed)</li>
+            <li>added new paragraph: "Transition into SoD: change Biff's OVERRIDE script to the SoD one for a continuous BG:EE-SoD game"</li>
+            <li>moved sidenote about detecting SoD into here (from Tutorial no 4 "SoD Banter System for Your NPC")</li>
+			<li>changed tutorial's title to reflect it now also deals with the transition into SoD</li>
+            <li>fixed some typos and added some comments</li>
+          </ul>
           <p>Version 2:</p>
           <ul>
             <li>added link to GameBanshee SoD walkthrough </li>
