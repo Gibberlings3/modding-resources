@@ -110,13 +110,14 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD</h1>
 	  
-	<p>Version 1, by jastey</p>
+	<p>Version 2, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
         <ol class="toc">
           <li><a href="#toc_1">The Set-Up: Make Biff comment on what happened</a></li>
           <li><a href="#toc_2">NPCs leave the group after The Incident</a></li>
+		  <li><a href="#toc_2b">Biff visits the PC in Prison</a></li>
           <li><a href="#toc_3">Make Biff wait at the Prison Exit</a></li>
           <li><a href="#toc_4">Biff should say something to the PC after the escape</a></li>
           <li><a href="#toc_5">Biff should rejoin the group (if possible)</a></li>
@@ -230,7 +231,39 @@ EXTEND_TOP ~bdcut61.bcs~ ~%MOD_FOLDER%/baf/xxbdcut61.baf~
   EVALUATE_BUFFER
 </pre>
 
-      <h2><a name="toc_3">3. Make Biff wait at the Prison Exit</a></h2>
+
+      <h2><a name="toc_2b">3. Biff visits the PC in Prison</a></h2>
+      <p>While in prison, the PC gets some visits depending on romance status of NPCs. The order of visits is the following: First Corwin, if Corwin is not romance interest, then the romance interest will come to visit next, then the "Hooded Man", and finally whoever lets the PC escape (depending on which ending the player gets).</p>
+	  <p>The example below will show how to let Biff visit the PC in prison as the first NPC. The area in question is bd0104.are and the script triggering the visits is <strong>bd0104.bcs</strong>.</p> 
+	  <p>This is what we patch to bd0104.bcs:</p>
+      <pre class="code">
+/* xxbd0104.baf : Biff visits the PC in prison (as first NPC) */
+IF
+	Global("chapter","global",13)
+	!GlobalTimerNotExpired("bd_jail_visitors_timer","bd0104")
+	!GlobalTimerNotExpired("bd_jail_visitors2_timer","bd0104")
+	Global("bd_jail_visitors","bd0104",0) //first visit
+	Global("xxBiff_jail_visitors","bd0104",0) //check variable for this script block
+	Global("xxBiff_SoDparty_epilogue","GLOBAL",1) //some variable that determines whether Biff will appear. For Biff, we take the variable that determines whether he will wait outside the prison
+	!Dead("xxBiff")  
+THEN
+	RESPONSE #100
+		SetGlobal("xxBiff_jail_visitors","bd0104",1)
+		SetGlobalTimer("bd_jail_visitors_timer","bd0104",FIVE_ROUNDS)
+		SetGlobalTimer("bd_jail_visitors2_timer","bd0104",TEN_ROUNDS)
+		MoveGlobal("bd0104","xxBiff",[720.620])  //coordinates true for all visiting NPCs
+		ActionOverride("xxBiff",ChangeAIScript("bdvisit",OVERRIDE)) //this script will handle the "NPC walks up to the PC's prison door and initiates dialogue"
+END
+	  </pre>
+	  <p>And to patch xxbd0104.baf to bd0104.bcs, we need this line in the tp2 (note the EXTEND_TOP):</p>
+      <pre class="code">
+/* Biff visits PC in Prison */
+EXTEND_TOP ~bd0104.bcs~ ~%MOD_FOLDER%/baf/xxbd0104.baf~
+  EVALUATE_BUFFER
+</pre>
+
+
+      <h2><a name="toc_3">4. Make Biff wait at the Prison Exit</a></h2>
       <p>After the PC's escape from the prison Imoen and the other NPCs of the "BGII canon" party will be waiting outside in the wilderness: Jaheira and Khalid, and Dynaheir and Minsc. The area is bd6200.are. If your NPC is not supposed to be captured by Irenicus, then you are practically done, because any NPC appearing now will be dragged into the abduction scene and will find themselves inside Irenicus Dungeon (or be killed) - unless you make your NPC leave after Imoen brought the PC to the waiting group outside of the exit. Biff should be here, so we need to add him to <strong>bd6200.bcs</strong>.</p>
       <p>We add two script blocks to the script:</p>
       <ol>
@@ -287,7 +320,7 @@ EXTEND_TOP ~bd6200.bcs~ ~%MOD_FOLDER%/baf/xxbd6200.baf~
   EVALUATE_BUFFER
 </pre>
 
-      <h2><a name="toc_4">4. Biff should say something to the PC after the escape</a></h2>
+      <h2><a name="toc_4">5. Biff should say something to the PC after the escape</a></h2>
       <p>After the escape from the prison and meeting with the canon NPC party, Imoen initiates dialogue and every NPC present says something to the recent events. We want Biff to say something here, too, so we need to I_C_T into <strong>bdimoen.dlg state 99</strong>. And since Biff isn't in the party at that point, this interjection needs to go into his kickout dialogue <strong>xxBiffsP.dlg</strong>.</p>
       <p>The following is what we put into a .d file for compilation. The first part is for the "assassin ending" (Global("bd_player_exiled","global",0)): the PC didn't convince the Dukes of their innocence and had to flee from the prison with the help of an unknown assassin. The second one is for the ending where the Dukes set the PC free and the PC is guided to the exit by an FF soldier (for !Global("bd_player_exiled","global",0)). Note: I_C_T3 means that there are several interjections with different triggers, but all of them should trigger if the conditions are met (and not the first one determines whether any of them shows, as it is for I_C_T):</p>
       <pre class="code">
@@ -305,11 +338,11 @@ END
 </pre>
 
 
-      <h2><a name="toc_5">5. Biff should rejoin the group (if possible)</a></h2>
+      <h2><a name="toc_5">6. Biff should rejoin the group (if possible)</a></h2>
       <p>After the PC and all present NPCs start moving and the scene fades to black, the cutscene <strong>bdcut64x.bcs</strong> handles the rejoining of the canon NPCs (Imoen - first time she joins in SoD!, Minsc, Dynaheir, Jaheira, Khalid) before calling bdcut65.bcs which transfers and moves the group onto bd6100.are, the final abduction area. This takes into consideration whether there is enough empty slots for the NPCs (for e.g. multiplayer game with more than one protagonist), and also whether the canon NPCs are actually still alive and present.</p>
 	  <p>This means, that with all canon NPCs alive (Imoen will be alive no matter what, but the other four might not be alive any more and won't be present then), the group is full with 6 people, and there is no "room" for your NPC. Still, if there is room, they should join the party.</p>
 	  <p>For Biff, we want the following to happen: if there is still room in the group (NumInPartyLT(6)), he should join. By joining, he will be present in the final abduction scene as a party member. For BG:EE with SoD, what follows is the actual abduction scene where the group walks into a clearing in the forest, the player gets the controls back for 2 seconds, then Imoen says it feels a little off and the endmovie starts.</p>
-	  <p class="info">If Biff doesn't join, he will remain in the bd6200.are, scripting wise. I couldn't get the cutscene to work if Biff is supposed to follow albeit not in party, he either starts walking long after everyone else or the cutscene didn't work properly. For SoD this is sufficient, though, as the player has hardly time to realize the missing of a non-party member. For EET, though, there is a lengthier cutscene which shows the actual fight prior to the abduction, and there the presence of your NPC might be interesting because the player might actually notice the absence. The tutorial will be updated with EET content as soon as I figured it out how to do it.</p>
+	  <p class="info">If Biff doesn't join, he will remain in the bd6200.are, scripting wise, and will not be present at the abduction scene. For SoD this is sufficient, though, as the player has hardly time to realize the missing of a non-party member. For EET, there is a lengthier cutscene which shows the actual fight prior to the abduction, and there the presence of your NPC might be interesting because the player might actually notice the absence. Unfortunately, I couldn't get the cutscene to work if Biff is supposed to follow albeit not in party, he either starts walking long after everyone else or the cutscene didn't work properly, so I can't give a template for this here.</p>
 	  <p>This is what we add to bdcut64x.bcs for Biff:</p>
       <pre class="code">
 /* xxbdcut64x.baf
@@ -357,6 +390,10 @@ EXTEND_TOP ~bdcut64x.bcs~ ~%MOD_FOLDER%/baf/xxbdcut64x.baf~
 	  
 	  
       <h2><a name="toc_13">Version History</a></h2>
+          <p>Version 2:</p>
+          <ul>
+            <li>added paragraph: "Biff visits the PC in Prison"</li>
+          </ul>
           <p>Version 1:</p>
           <ul>
             <li>public release</li>
