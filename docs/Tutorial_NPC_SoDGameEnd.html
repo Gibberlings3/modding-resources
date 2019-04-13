@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD</h1>
 	  
-	<p>Version 2, by jastey</p>
+	<p>Version 3, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -255,13 +255,27 @@ THEN
 		ActionOverride("xxBiff",ChangeAIScript("bdvisit",OVERRIDE)) //this script will handle the "NPC walks up to the PC's prison door and initiates dialogue"
 END
 	  </pre>
-	  <p>And to patch xxbd0104.baf to bd0104.bcs, we need this line in the tp2 (note the EXTEND_TOP):</p>
+	  <p>To patch xxbd0104.baf to bd0104.bcs, we need this line in the tp2 (note the EXTEND_TOP):</p>
       <pre class="code">
 /* Biff visits PC in Prison */
 EXTEND_TOP ~bd0104.bcs~ ~%MOD_FOLDER%/baf/xxbd0104.baf~
   EVALUATE_BUFFER
 </pre>
+     <p>The dialogue goes into a .d-file. Again, Biff is not in the group, so we use his kickout dialogue xxBiffsP.dlg:</p>
+	 <pre class="code">
+/* (T2) Biff visits PC in prison */
 
+APPEND xxBiffsP 
+
+IF WEIGHT #-1 //we make this higher weighted so it triggers instead of his valid kickout dialogue
+~Global("xxBiff_jail_visitors","bd0104",1)~ THEN prison_visit
+SAY ~Hey there, &lt;CHARNAME&gt;. I know it sounds weird, but... you'll be fine, so hang in there, alright?~
+IF ~~ THEN DO ~SetGlobal("xxBiff_jail_visitors","bd0104",2) 
+SetGlobal("bd_visit_player","locals",1) //this will let Biff EscapeArea() via bdvisit.bcs
+~ EXIT
+END
+END //APPEND
+</pre>
 
       <h2><a name="toc_3">4. Make Biff wait at the Prison Exit</a></h2>
       <p>After the PC's escape from the prison Imoen and the other NPCs of the "BGII canon" party will be waiting outside in the wilderness: Jaheira and Khalid, and Dynaheir and Minsc. The area is bd6200.are. If your NPC is not supposed to be captured by Irenicus, then you are practically done, because any NPC appearing now will be dragged into the abduction scene and will find themselves inside Irenicus Dungeon (or be killed) - unless you make your NPC leave after Imoen brought the PC to the waiting group outside of the exit. Biff should be here, so we need to add him to <strong>bd6200.bcs</strong>.</p>
@@ -390,6 +404,10 @@ EXTEND_TOP ~bdcut64x.bcs~ ~%MOD_FOLDER%/baf/xxbdcut64x.baf~
 	  
 	  
       <h2><a name="toc_13">Version History</a></h2>
+          <p>Version 3:</p>
+          <ul>
+            <li>added missing dialogue for "Biff visits the PC in Prison"</li>
+          </ul>
           <p>Version 2:</p>
           <ul>
             <li>added paragraph: "Biff visits the PC in Prison"</li>
