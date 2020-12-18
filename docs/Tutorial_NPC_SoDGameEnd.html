@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD</h1>
 	  
-	<p>Version 3, by jastey</p>
+	<p>Version 4, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -120,7 +120,8 @@
 		  <li><a href="#toc_2b">Biff visits the PC in Prison</a></li>
           <li><a href="#toc_3">Make Biff wait at the Prison Exit</a></li>
           <li><a href="#toc_4">Biff should say something to the PC after the escape</a></li>
-          <li><a href="#toc_5">Biff should rejoin the group (if possible)</a></li>
+          <li><a href="#toc_5">Biff should appear in the last area (abduction scene, bd6100.are)</a></li>
+          <li><a href="#toc_6">Biff should move with group in the last area (abduction scene, bd6100.are)</a></li>
           <li><a href="#toc_12">Credits, Used Tools, and Helpful Links</a></li>
           <li><a href="#toc_13">Version History</a></li>
         </ol>
@@ -352,37 +353,88 @@ END
 </pre>
 
 
-      <h2><a name="toc_5">6. Biff should rejoin the group (if possible)</a></h2>
+      <h2><a name="toc_5">6. Biff should appear in the last area (abduction scene, bd6100.are)</a></h2>
       <p>After the PC and all present NPCs start moving and the scene fades to black, the cutscene <strong>bdcut64x.bcs</strong> handles the rejoining of the canon NPCs (Imoen - first time she joins in SoD!, Minsc, Dynaheir, Jaheira, Khalid) before calling bdcut65.bcs which transfers and moves the group onto bd6100.are, the final abduction area. This takes into consideration whether there is enough empty slots for the NPCs (for e.g. multiplayer game with more than one protagonist), and also whether the canon NPCs are actually still alive and present.</p>
-	  <p>This means, that with all canon NPCs alive (Imoen will be alive no matter what, but the other four might not be alive any more and won't be present then), the group is full with 6 people, and there is no "room" for your NPC. Still, if there is room, they should join the party.</p>
-	  <p>For Biff, we want the following to happen: if there is still room in the group (NumInPartyLT(6)), he should join. By joining, he will be present in the final abduction scene as a party member. For BG:EE with SoD, what follows is the actual abduction scene where the group walks into a clearing in the forest, the player gets the controls back for 2 seconds, then Imoen says it feels a little off and the endmovie starts.</p>
-	  <p class="info">If Biff doesn't join, he will remain in the bd6200.are, scripting wise, and will not be present at the abduction scene. For SoD this is sufficient, though, as the player has hardly time to realize the missing of a non-party member. For EET, there is a lengthier cutscene which shows the actual fight prior to the abduction, and there the presence of your NPC might be interesting because the player might actually notice the absence. Unfortunately, I couldn't get the cutscene to work if Biff is supposed to follow albeit not in party, he either starts walking long after everyone else or the cutscene didn't work properly, so I can't give a template for this here.</p>
+	  <p>This means, that with all canon NPCs alive (Imoen will be alive no matter what, but the other four might not be alive any more and won't be present then), the group is full with 6 people, and there is no "room" for your NPC. If there is less, then there would be room, in principle. But for easier handling of our mod NPC, we will only move Biff to teh last area and let him walk at the PC's side. This way, we only have to consider one case.</p>
 	  <p>This is what we add to bdcut64x.bcs for Biff:</p>
       <pre class="code">
 /* xxbdcut64x.baf
-Let Biff join after PC escaped from prison (if there is still a free slot in the group) */
+Biff will not join after PC escaped from prison (simplifies scripting) */
 IF
-	Global("xxBiff_SoDEndMove","bd6200",1) //same variable as used in xxbd6200.baf to spawn Biff!
-	Global("bd_party_check","bd6200",5) //all canon NPCs were already considered
+	Global("xxBiff_SoDEndMove","bd6200",1) //same as in xxbd6200.bcs 
+	InMyArea("xxBiff")
 	!Dead("xxBiff")  
-	!InParty("xxBiff") 
-	InMyArea("xxBiff") 
-	NumInPartyLT(6)
+	!InParty("xxBiff")  
 THEN
 	RESPONSE #100
 		CutSceneId(Player1)
 		SetGlobal("xxBiff_SoDEndMove","bd6200",2)
-		ActionOverride("xxBiff",JoinParty())
+		ActionOverride("xxBiff",LeaveAreaLUA("bd6100","",[xxx.yyy],SE)) //chose some coordinates beneath the trees northseast of the clearing 
 		SmallWait(10)
 		Continue()
 END
 
+
 </pre>
       <p>And for the tp2:</p>
       <pre class="code">
-/* (T2) Let Biff join after PC escaped from prison (if there is still a free slot in the group) */
+/* (T2) Biff should appear in the last area (abduction scene, bd6100.are) */
 EXTEND_TOP ~bdcut64x.bcs~ ~%MOD_FOLDER%/baf/xxbdcut64x.baf~
   EVALUATE_BUFFER
+</pre>
+
+      <h2><a name="toc_6">7. Biff should move with the group in the last area (abduction scene, bd6100.are)</a></h2>
+      <p>In the last SoD area bd6100.are, the group emerges from beneath the trees and moves out into the clearing before the abduction happens. Biff should move, too, so we need to patch the cutscene bdcut65.bcs.</p>
+	  <p>This is what we add to the tp2 to patch bdcut65.bcs:</p>
+      <pre class="code">
+	  
+//put this into the ALWAYS block of cour tp2  
+INCLUDE ~ACBre/lib/extra_regexp_vars.tph~ //this makes sure REPLACE_TEXTUALLY finds the right match to patch
+OUTER_SPRINT newline ~%WNL%%LNL%%MNL%%TAB% ~
+
+
+/* Biff should move with the group in the last area (abduction scene, bd6100.are) */
+COPY_EXISTING ~bdcut65.bcs~ ~override~
+  DECOMPILE_AND_PATCH BEGIN
+
+		SPRINT textToReplace ~\(SetAreaScript("",OVERRIDE)\)[%newline%]*\(END\)~
+		COUNT_REGEXP_INSTANCES ~%textToReplace%~ num_matches
+		PATCH_IF (num_matches > 0) BEGIN
+			REPLACE_TEXTUALLY ~%textToReplace%~ ~\1 
+\2 
+
+IF
+	Global("xxBiff_SoDEndMove","bd6100",0) 
+	InMyArea("xxBiff")
+	!Dead("xxBiff")  
+	!InParty("xxBiff")  
+THEN
+	RESPONSE #100
+		CutSceneId(Player1)
+		SetGlobal("xxBiff_SoDEndMove","bd6100",1) 
+		ActionOverride("xxBiff",MoveToPoint([930.795])) //you can leave these coordinates for your NPC, too
+END
+~
+			PATCH_PRINT ~Patching: %num_matches% matches found in %SOURCE_FILESPEC% for REPLACE_TEXTUALLY: %textToReplace%~
+		END ELSE BEGIN
+			PATCH_WARN ~WARNING: could not find %textToReplace% in %SOURCE_FILESPEC%~
+		END
+	END
+BUT_ONLY_IF_IT_CHANGES
+
+</pre>
+      <p>And in a folder %MOD_FOLDER%/lib/ you need this as a file called "extra_regexp_vars.tph":</p>
+      <pre class="code">
+OUTER_INNER_PATCH ~12~ BEGIN
+  WRITE_BYTE 1 0x09
+  READ_ASCII 1 tab (1)  // 0x09, tab
+  WRITE_BYTE 1 0x0a
+  READ_ASCII 1 lnl (1)  // 0x0a, Linux
+  WRITE_BYTE 0 0x0d
+  READ_ASCII 0 mnl (1)  // 0x0d, Mac
+  READ_ASCII 0 wnl (2)  // 0x0d0a, Windows
+
+END
 </pre>
 
  
@@ -404,6 +456,10 @@ EXTEND_TOP ~bdcut64x.bcs~ ~%MOD_FOLDER%/baf/xxbdcut64x.baf~
 	  
 	  
       <h2><a name="toc_13">Version History</a></h2>
+          <p>Version 4:</p>
+          <ul>
+            <li>changed handling of NPC in the last SoD areas (prison exit and abduction area): NPC will not join the party but walk beside the PC</li>
+          </ul>
           <p>Version 3:</p>
           <ul>
             <li>added missing dialogue for "Biff visits the PC in Prison"</li>
