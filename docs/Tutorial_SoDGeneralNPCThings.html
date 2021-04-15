@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 3: Add Other General SoD Behavior to Your NPC: XP Adjustment, Actions in Story Cutscenes, Commenting of Main Story Events</h1>
 	  
-	<p>Version 1, by jastey. Note: This is a work in progress.</p>
+	<p>Version 2, by jastey. Note: This is a work in progress.</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -855,7 +855,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* (T3) Comment upon entering Avernus */
-EXTEND_TOP ~bd4400.bcs~ ~%MOD_FOLDER%/baf/xxbd4400_commenting.baf~
+EXTEND_BOTTOM ~bd4400.bcs~ ~%MOD_FOLDER%/baf/xxbd4400_commenting.baf~
 EVALUATE_BUFFER
 	</pre>
 		
@@ -1375,7 +1375,11 @@ EVALUATE_BUFFER
 	  
 	  
       <h2><a name="toc_101">Version History</a></h2>
-          <p>Version 1:</p>
+          <p>Version 2:</p>
+          <ul>
+            <li>~%MOD_FOLDER%/baf/xxbd4400_commenting.baf~ should be patched to bd4400.bcs via EXTEND_BOTTOM</li>
+          </ul>	  
+	      <p>Version 1:</p>
           <ul>
             <li>public release</li>
           </ul>
