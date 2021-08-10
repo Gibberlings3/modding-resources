@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 1: Automatic Transition of NPCs into SoD and between Camps in SoD</h1>
 	  
-	<p>Version 6, by jastey</p>
+	<p>Version 7, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -825,7 +825,7 @@ EXTEND_TOP ~bdcut59b.bcs~ ~%MOD_FOLDER%/baf/xxbdcut59b.baf~
 
       <h2><a name="toc_11">13. Biff's SoD greetings dialogue with the needed local variables</a></h2>
       <p>What we still need is the greetings dialogue xxBiffs.dlg and the kickout dialogue xBiffP.dlg with all the used variables from above.</p>
-      <p>For the SoD greeting's dialogue, the following would do. Note that it sets “Global("xxBiffWait","GLOBAL",1)” if Biff should wait for the PC which is used in the script block in xxbd0101.baf above as well as the GLOBAL variable "xxBiffSpawn" which is set to “1” if he is spawned for a new game.</p>
+      <p>For the SoD greeting's dialogue, the following would do.</p>
       <pre class="code">
 /* Biff's SoD greetings dialogue */
 
@@ -938,6 +938,10 @@ END
 	  
 	  
       <h2><a name="toc_14">17. Version History</a></h2>
+          <p>Version 7:</p>
+          <ul>
+            <li>Removed remnants in description.</li>
+          </ul>
           <p>Version 6:</p>
           <ul>
             <li>corrected script so Biff will not spawn double in front of Palace (in xxbd0101.baf)</li>
