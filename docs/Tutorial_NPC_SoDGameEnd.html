@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD</h1>
 	  
-	<p>Version 4, by jastey</p>
+	<p>Version 5, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -120,8 +120,8 @@
 		  <li><a href="#toc_2b">Biff visits the PC in Prison</a></li>
           <li><a href="#toc_3">Make Biff wait at the Prison Exit</a></li>
           <li><a href="#toc_4">Biff should say something to the PC after the escape</a></li>
-          <li><a href="#toc_5">Biff should appear in the last area (abduction scene, bd6100.are)</a></li>
-          <li><a href="#toc_6">Biff should move with group in the last area (abduction scene, bd6100.are)</a></li>
+          <li><a href="#toc_5">Biff should appear in the last area (abduction scene, bd6100.are)[DEPRECATED]</a></li>
+          <li><a href="#toc_6">Biff should move with group in the last area (abduction scene, bd6100.are)[DEPRECATED]</a></li>
           <li><a href="#toc_12">Credits, Used Tools, and Helpful Links</a></li>
           <li><a href="#toc_13">Version History</a></li>
         </ol>
@@ -298,6 +298,7 @@ IF
 THEN
 	RESPONSE #0
 		SetGlobal("xxBiff_SoDEndMove","bd6200",1)
+		SetGlobal("bd_meet_canon_party","bd6200",1) //tells Imoen that there is someone waiting at the clearing (used in her greetings dialogue at the sewer exit)
 		MoveGlobal("bd6200","xxBiff",[xxx.yyy]) //chose coordinates near the meeting place: the clearing at the southeast. For example: Minsc is waiting at [1660.1120]
 		ActionOverride("xxBiff",SetSequence(SEQ_READY)) //from IESDP: This action instructs the active creature to perform the specified animation sequence. Values are from seq.ids.
 		ActionOverride("xxBiff",Face(NW)) //depending on where the NPC stands, they should face the north east
@@ -353,7 +354,8 @@ END
 </pre>
 
 
-      <h2><a name="toc_5">6. Biff should appear in the last area (abduction scene, bd6100.are)</a></h2>
+      <h2><a name="toc_5">6. Biff should appear in the last area (abduction scene, bd6100.are)[DEPRECATED]</a></h2>
+	  <p class="info">This section is deprecated. I'll leave it in so anyone interested can try to make this work without having to search for the involved scripts anew. I do not recommend using this the way it is described here. Problems arising for my NPC were: the NPC does not walk across the clearing in bd6100.are but remains standing under the bushes; the NPC does not appear in Irenicus' Dungeon although the script block for their creation run; the NPC appears but still has all protection effects of the last kidnapping scene on them. One possibility to circumvent the last two issues could be to work with a "dummy NPC" that walks alongside the group. I decided to not let my NPC appear in the last kidnapping scene.</p>
       <p>After the PC and all present NPCs start moving and the scene fades to black, the cutscene <strong>bdcut64x.bcs</strong> handles the rejoining of the canon NPCs (Imoen - first time she joins in SoD!, Minsc, Dynaheir, Jaheira, Khalid) before calling bdcut65.bcs which transfers and moves the group onto bd6100.are, the final abduction area. This takes into consideration whether there is enough empty slots for the NPCs (for e.g. multiplayer game with more than one protagonist), and also whether the canon NPCs are actually still alive and present.</p>
 	  <p>This means, that with all canon NPCs alive (Imoen will be alive no matter what, but the other four might not be alive any more and won't be present then), the group is full with 6 people, and there is no "room" for your NPC. If there is less, then there would be room, in principle. But for easier handling of our mod NPC, we will only move Biff to teh last area and let him walk at the PC's side. This way, we only have to consider one case.</p>
 	  <p>This is what we add to bdcut64x.bcs for Biff:</p>
@@ -383,7 +385,8 @@ EXTEND_TOP ~bdcut64x.bcs~ ~%MOD_FOLDER%/baf/xxbdcut64x.baf~
   EVALUATE_BUFFER
 </pre>
 
-      <h2><a name="toc_6">7. Biff should move with the group in the last area (abduction scene, bd6100.are)</a></h2>
+      <h2><a name="toc_6">7. Biff should move with the group in the last area (abduction scene, bd6100.are)[DEPRECATED]</a></h2>
+	  <p class="info">This section is deprecated. I'll leave it in so anyone interested can try to make this work without having to search for the involved scripts anew. I do not recommend using this the way it is described here. Problems arising for my NPC were: the NPC does not walk across the clearing in bd6100.are but remains standing under the bushes; the NPC does not appear in Irenicus' Dungeon although the script block for their creation run; the NPC appears but still has all protection effects of the last kidnapping scene on them. One possibility to circumvent the last two issues could be to work with a "dummy NPC" that walks alongside the group. I decided to not let my NPC appear in the last kidnapping scene.</p>
       <p>In the last SoD area bd6100.are, the group emerges from beneath the trees and moves out into the clearing before the abduction happens. Biff should move, too, so we need to patch the cutscene bdcut65.bcs.</p>
 	  <p>This is what we add to the tp2 to patch bdcut65.bcs:</p>
       <pre class="code">
@@ -456,6 +459,11 @@ END
 	  
 	  
       <h2><a name="toc_13">Version History</a></h2>
+          <p>Version 5:</p>
+          <ul>
+            <li>added SetGlobal("bd_meet_canon_party","bd6200",1)to creation at the sewer exit (after PC escapes prison) so Imoen will be aware there is someone waiting at the clearing.</li>
+            <li>changed handling of NPC in the last SoD area (abduction area): NPC will not appear for EET abduction scene. I couldn't make the transition to BGII work properly if the effects are on the NPC while they are not in party.
+          </ul>
           <p>Version 4:</p>
           <ul>
             <li>changed handling of NPC in the last SoD areas (prison exit and abduction area): NPC will not join the party but walk beside the PC</li>
