@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD</h1>
 	  
-	<p>Version 5, by jastey</p>
+	<p>Version 6, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -122,6 +122,7 @@
           <li><a href="#toc_4">Biff should say something to the PC after the escape</a></li>
           <li><a href="#toc_5">Biff should appear in the last area (abduction scene, bd6100.are)[DEPRECATED]</a></li>
           <li><a href="#toc_6">Biff should move with group in the last area (abduction scene, bd6100.are)[DEPRECATED]</a></li>
+          <li><a href="#toc_7">If Biff should NOT be present after the PC escapes the prison</a></li>
           <li><a href="#toc_12">Credits, Used Tools, and Helpful Links</a></li>
           <li><a href="#toc_13">Version History</a></li>
         </ol>
@@ -440,6 +441,26 @@ OUTER_INNER_PATCH ~12~ BEGIN
 END
 </pre>
 
+      <h2><a name="toc_7">8. If Biff should NOT be present after the PC escapes the prison</a></h2>
+      <p>In case your NPC is BG/SoD only, they'd not be present at the sewer exit when the PC escaped the prison. In this case, nothing after patching bdcut61.bcs to make them leave the group would be necessary technical wise (see above in "2. NPCs leave the group after The Incident").</p>
+      <p>However, when greeting the PC at the sewer exit, Imoen has reply options where the PC can ask about one of the missing group members that were with them upon the arrest. This is triggered by the variable "Global("xxBiff_SoDparty_epilogue","GLOBAL",1)" that we set for Biff upon his leaving in bdcut61.bcs.</p>
+      <p>To add a reply about Biff to Imoen's dialogue, we patch it to the states bdimoen 104 (for the "not guilty" ending i.e. Global("bd_player_exiled","global",1)), and bdimoen 109 (for the "guilty" ending i.e. Global("bd_player_exiled","global",0)).</p>
+      <p>We put this inside a d-file:</p>
+      <pre class="code">
+EXTEND_BOTTOM bdimoen 104
+  + ~Global("xxBiff_SoDparty_epilogue","GLOBAL",1)~ + ~I was expecting to see Biff amongst you.~ + ask_about_biff
+END
+EXTEND_BOTTOM bdimoen 109
+  + ~Global("xxBiff_SoDparty_epilogue","GLOBAL",1)~ + ~I was expecting to see Biff amongst you.~ + ask_about_biff
+END
+APPEND bdimoen
+IF ~~ THEN ask_about_biff
+  SAY ~Biff? Ah, he said something about having to rehearse for BGII and went off, sorry.~
+  IF ~~ THEN GOTO 119
+END
+  
+</pre>
+
  
 	  
       <h2><a name="toc_12">Credits, Used Tools, and Helpful Links</a></h2>
@@ -459,6 +480,10 @@ END
 	  
 	  
       <h2><a name="toc_13">Version History</a></h2>
+          <p>Version 6:</p>
+          <ul>
+            <li>added paragraph "8. If Biff should NOT be present after the PC escapes the prison"</li>
+          </ul>
           <p>Version 5:</p>
           <ul>
             <li>added SetGlobal("bd_meet_canon_party","bd6200",1)to creation at the sewer exit (after PC escapes prison) so Imoen will be aware there is someone waiting at the clearing.</li>
