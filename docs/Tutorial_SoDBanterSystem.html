@@ -110,20 +110,23 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 4: SoD Banter System for Your NPC</h1>
 	  
-	<p>Version 2, by jastey</p>
+	<p>Version 3, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
         <ol class="toc">
-          <li><a href="#toc_1">Activating and Initiating the Banter: Additions to Biff's Override Script</a></li>
+          <li><a href="#toc_1">Activating and Initiating Banters: Additions to NPCs' Override Scripts</a></li>
           <li><a href="#toc_2">The Banter "Area" Script</a></li>
           <li><a href="#toc_3">Having another NPC Interject into the Banter</a></li>
-          <li><a href="#toc_4">Credits, Used Tools, and Helpful Links</a></li>
-          <li><a href="#toc_5">Version History</a></li>
+          <li><a href="#toc_4">Include Optional Component for Banters in "Dialog Style"</a></li>
+          <li><a href="#toc_100">Credits, Used Tools, and Helpful Links</a></li>
+          <li><a href="#toc_101">Version History</a></li>
         </ol>
       </div>
 
-      <p class="info">This tutorial deals with how to make your NPC banter with the other party NPCs like it is custom in SoD. In SoD, banters of party NPCs are done via floating text above their heads while the player wanders about the areas. As an example NPC, Biff the Understudy will be the NPC in this guide, bantering with Corwin.</p>
+      <p class="info">This tutorial deals with how to make your NPC banter with the other party NPCs like it is custom in SoD. In SoD, banters of party NPCs are done via floating text above their heads while the player wanders about the areas. As an example NPC, Biff the Understudy will be the NPC in this guide, bantering with Corwin two times: the first banter will be started by Biff, the second by Corwin. Read through the chapters to see how the needed files play together.</p> 
+	  <p class="info">The examples are such that the banter can be also offered in "dialogue style" like they are in BG2. How to do this as an optional component of your mod is explained in Chapter 4.</p>
+	  <p class="info">Please note: the mods EndlessBG1 and Transitions can move Korlasz' Dungeon into the BG1 campaign, meaning the NPCs (including your mod NPC) will use their BG1 banter files inside the crypt. Make sure to cover compatibility when using the banter.dlgs inside Korlasz' Crypt. Refer also to Modding Tutorial Part 1, Chapter "General throughts to NPC's joined dialoge, transition into SoD "Korlasz' Crypt", and compatibility with EndlessBG1".</p>
       <p><strong>Some nomenclature:</strong></p>
       <table>
         <col width="180" />
@@ -133,66 +136,88 @@
           <td>used as a modding prefix in this tutorial. If you don't have a prefix, check the <a href="http://www.blackwyrmlair.net/prefixes/">IE Community Filename Prefix Reservations List</a> and register one at <a href="http://forums.blackwyrmlair.net/index.php?showtopic=113">Black Wyrm Lair Forums</a>.</td>
         </tr>
           <td>xxBiff</td>
-          <td>Biff's script name (death variable)</td>
+          <td>Biff's scriptname (death variable)</td>
         </tr>
         <tr>
           <td>xxBiffs.bcs</td>
           <td>Biff's SoD override script</td>
         </tr>
         <tr>
-          <td>xxBBan01.bcs</td>
-          <td>Biff's SoD banter "area" script with Corwin</td>
+          <td>xxBiff01.bcs</td>
+          <td>Biff's SoD banter "area" script for first banter with Corwin</td>
         </tr>
+        <tr>
+          <td>xxBiff02.bcs</td>
+          <td>Biff's SoD banter "area" script for second banter with Corwin</td>
+        </tr>
+        <tr>
+          <td>xxbiffbx.2da</td>
+          <td>List of Biff's SoD banter "area" scripts, executing scripts, and conversion partner's scriptnames for automatic transformation of SoD style banters to "dialogue style" banters in Chapter 4</td>
+        </tr>
+        </tr>
+          <td>xxBiffB</td>
+          <td>Biff's banter.dlg name. Note: if Biff would be available in BG1, too, I'd use the same banter file name and tagg the banter with SoD only / BG1 only triggers. This simplifies compatibility with EndlessBG1's and Transition's "Korlasz' Dungeon in BG1" content.</td>
+        </tr>
+        <tr>
       </table>
 
-      <h2><a name="toc_1">1. Activating and Initiating the Banter: Additions to Biff's Override Script</a></h2>
-      <p>The banter is started by Biff's SoD override script xxBiffs.bcs. As an example, he will banter with Corwin.</p> 
+      <h2><a name="toc_1">1. Activating and Initiating Banters: Additions to NPCs' Override Scripts</a></h2>
+      <p>The first banter is started by Biff's SoD override script xxBiffs.bcs. As an example, he will banter with Corwin.</p> 
       <p>The following is what we put into Biff's SoD script xxBiffs.bcs:</p> 
 	  <ol>
-        <li>The first script block activates the banter and sets a timer if both Biff and Corwin are in the party.</li>
-        <li>The second script block deactivates and sets the variable back to "0" if one of them is no longer in the party.</li>
-        <li>The third script block initiates the banter by setting the GENERAL area script to a script containing our banter, which will be discussed in top 2. In this example, the banter "area" script will be called "xxBiff01".</li>
+        <li>The first script block activates the banter and sets a timer if both Biff and Corwin are in the party. It also increments a checking variable by "1". 
+		<p class="info">This variable is a global variable because it manages all interactions between Biff and Corwin, regardless of which NPC started the banter. It will be used for all banters between these two NPCs and increased accordingly. The examples reflect this by giving Biff and Corwin two banters in total so you can see the structure of how it works.</p></li>
+        <li>The second script block deactivates the timer by setting the variable back to "0" if one of the NPCs is no longer in the party.</li>
+        <li>The third script block activates the banters by incrementing the banter variable by one if the banter timer run out and the variable is active. This is an extra script block to ensure triggering of the banters will run at all times and not be accidentally "swallowed" by a mistimered other command for the NPC (player click or other script firing). Refer to Kulyok's tutorial <a href="https://forums.pocketplane.net/index.php?topic=23822.0">"How to ensure your banters always run when you want them to"</a> for more info about this scripting style.</li>
+        <li>The 4<sup>th</sup> script block initiates the (1<sup>st</sup>) banter <b>started by Biff</b> by setting the GENERAL area script to a script containing our banter, which will be discussed in top 2. In this example, the banter "area" script will be called "xxBiff01".</li>
 	  </ol>
-	<p class="info">Sidenote: of course all banters of your mod NPC could be included into the same banter "area" script file. For this, you need to give the banter that is supposed to trigger a variable the banter "area" script can see, too. The example reflects this.</p>
+	<p class="info">Sidenote: of course all banters of your mod NPC could be included into the same banter "area" script file. Also, all changes of area scripts to the custom banter scripts could be done via your NPC mod's OVERRIDE script. But: if you want to offer the SoD banters in "dialogue style" as described in Chapter 4 of this tutorial, every banter needs to be in a separate file, plus the NPC starting the banter needs to have the initiation script block in their own OVERRIDE script, to enable simple conversion into "dialogue style" of the banters. I recommend putting every banter into an own baf file and removed comments on how to use one single banter "area" script file.</p>
 	
 	 <p>The following timers are used:</p> 
 	  <ol>
         <li>The custom timer until this banter will be triggered, we will call it ("xxBiff_SoD_CorwinBTimer","LOCALS"). Note that this timer is a random number between a minimum and a maximum specified in the first script block, and that it is reset every time one of the NPCs leave the party. With this in mind, in my opinion the standard maximum of 14 ingame days might be rather long if a player tends to switch NPCs often.</li>
-        <li>("BD_NPC_BANTER","GLOBAL") - global banter timer that spaces all NPC banters in SoD. Is reset by bdbaldur.bcs if it runs out without a starting banter (random between fifteen ingame minutes (90 s realtime) and one ingame hour, i.e. 6 minutes realtime). Also gets reset by every banter call in the NPCs' scripts (FOUR_HOURS, i.e. 24 minutes realtime) and at some point in the game where apparently no banters should fire the next ingame hours.</li>
+        <li>("BD_NPC_BANTER","GLOBAL") - global banter timer that spaces all NPC banters in SoD. Is reset by bdbaldur.bcs if it runs out without a banter being started (random between fifteen ingame minutes (90 s realtime) and one ingame hour, i.e. 6 minutes realtime). Also gets reset by every banter call in the NPCs' scripts (FOUR_HOURS, i.e. 24 minutes realtime) and at some point in the game where apparently no banters should fire the next ingame hours.</li>
         <li>("BD_AREA_BANTER_DELAY","MYAREA") area-specific timer that is set by baldur.bcs (SEVEN_DAYS) every time it and the global banter timer run out. This timer has to RUN so banters will fire (NPC scripts check for GlobalTimerNotExpired("BD_AREA_BANTER_DELAY","MYAREA")).</li>
 	  </ol>
 	<p></p> 	  
 
-    <p>The Global("xxBiff_SoD_CorwinBanter_DEBUG","GLOBAL",1) in the third script block is for debugging purposes only. If you do not want to include this, leave out this variable along with the two OR(2) calls.</p> 
+    <p class="info">The global("xxBiff_SoD_CorwinBanter_DEBUG","GLOBAL",1) in the third script block is for debugging purposes only. If you do not want to include this, leave out this variable along with the two OR(2) calls.</p> 
 	
 	<p>This is what the script blocks look like in Biff's SoD script:</p>
 	<pre class="code">	  
-/* This goes into Biff's SoD script */
+/* Biff's Banters */
 
+/* Corwin */
 /* First script block: Banter activation: detect Corwin and set a timer */
 IF
 	InParty(Myself) //"Myself" is Biff since we add this to his override script
-	InParty("CORWIN")  // Biff's banter partner's script name (death variable)
-	Global("xxSoD_CorwinBanter","LOCALS",0) //this variable is for activating and initiating this banter inside this script, only. Watch the letter count (max 27 for local variables if this didn't change for EE)
+	InParty("CORWIN")  // Biff's banter partner's scriptname (death variable)
+	/* "xxBiff_SoD_CorwinBanter" is a variable for activating and initiating all banters between Biff and Corwin. It is a global variable for compatibility with changing the banters to "dialogue style" */
+	OR(2) //this example covers two banters between Biff and Corwin. Adjust as needed.
+		Global("xxBiff_SoD_CorwinBanter","GLOBAL",0) //value before first banter
+		Global("xxBiff_SoD_CorwinBanter","GLOBAL",3) //value before 2nd banter
 THEN
 	RESPONSE #100
-		SetGlobalTimerRandom("xxBiff_SoD_CorwinBTimer","LOCALS",ONE_DAY,FOURTEEN_DAYS) //Adjust the min and max timer accordingly to what you want
-		SetGlobal("xxSoD_CorwinBanter","LOCALS",1)
+		SetGlobalTimerRandom("xxBiff_SoD_CorwinBTimer","LOCALS",ONE_DAY,FOURTEEN_DAYS) //Adjust the min and max timer accordingly to what you want. We can use a local timer because all banter will be activated by Biff's script.
+		IncrementGlobal("xxBiff_SoD_CorwinBanter","GLOBAL",1)
 END
-
 
 /* Second script block: Banter deactivation in case Corwin or Biff is no longer in the party */
 IF
 	OR(2)
 		!InParty(Myself)
 		!InParty("CORWIN")  
-	Global("xxSoD_CorwinBanter","LOCALS",1)
+	OR(2)
+		Global("xxBiff_SoD_CorwinBanter","GLOBAL",1) //intermediate value for first banter
+		Global("xxBiff_SoD_CorwinBanter","GLOBAL",4) //intermediate value for 2nd banter
 THEN
 	RESPONSE #100
-		SetGlobal("xxSoD_CorwinBanter","LOCALS",0)
+		IncrementGlobal("xxBiff_SoD_CorwinBanter","GLOBAL",-1) //decreases value to "Corwin not detected"
 END
 
-/* Third script block: timer run out and banter is initiated by setting the area script to a custom script containing our banter. */
+/* Third script block: timer run out and banter variable incremented. */
+/* note: this is for ALL banters between Biff and Corwin. */
+/* activate banters */
 IF
 	OR(2) //this is for debugging purposes, remove this line if you do not want to include this possibility 
 		Global("xxBiff_SoD_CorwinBanter_DEBUG","GLOBAL",1) //this is for debugging purposes, remove this line if you do not want to include this possibility 
@@ -201,56 +226,93 @@ IF
 		Global("xxBiff_SoD_CorwinBanter_DEBUG","GLOBAL",1) //this is for debugging purposes, remove this line if you do not want to include this possibility 
 		!GlobalTimerNotExpired("BD_NPC_BANTER","GLOBAL") //this needs to stay
 	GlobalTimerNotExpired("BD_AREA_BANTER_DELAY","MYAREA")
-	Global("xxSoD_CorwinBanter","LOCALS",1)
+	OR(2)
+		Global("xxBiff_SoD_CorwinBanter","GLOBAL",1) //intermediate value for first banter
+		Global("xxBiff_SoD_CorwinBanter","GLOBAL",4) //intermediate value for 2nd banter
 	IsValidForPartyDialog(Myself) //"IsValidForPartyDialog" is working in a reliable fashion in the EE, but if you prefer you can use the wellknown "CD_STATE_NOTVALID" state check together with See() and InParty() instead.
-	IsValidForPartyDialog("CORWIN")  
+	IsValidForPartyDialog("CORWIN") //Corwin should be able to talk, too
 	!PartyRested()
 	!ActuallyInCombat()
 THEN
 	RESPONSE #100
 		BanterBlockTime(450) //From IESDP: "This action extends the time taken for the banter timer to expire. The banter timers are hardcoded and every time one expires an NPC's b****.dlg is called.". Adjust the time accordingly.
 		SetGlobalTimer("BD_NPC_BANTER","GLOBAL",FOUR_HOURS)
-		SetGlobal("xxSoD_CorwinBanter","LOCALS",2)
-//	    SetGlobal("xx_SoD_xxBiff01","MYAREA",1) //uncomment this line if you want to put all your banters into one single banter "area" script file. Setting the variable here needs to be reflected in xxBiff01.baf as stated in the comments. This is the same variable as it is used in xxBiff01.baf.
+		IncrementGlobal("xxBiff_SoD_CorwinBanter","GLOBAL",1) //increment banter variable to activate 4th banter block
+END
+
+/* 4th script block: 1st banter is initiated by setting the area script to the custom script containing our banters. */
+/* note: this is ONLY for banters started by Biff with Corwin. */
+/* initiate 1st banter */
+IF
+	Global("xxBiff_SoD_CorwinBanter","GLOBAL",2) //trigger value for first banter - will be closed in 1st banter
+	IsValidForPartyDialog(Myself) //"IsValidForPartyDialog" is working in a reliable fashion in the EE, but if you prefer you can use the wellknown "CD_STATE_NOTVALID" state check together with See() and InParty() instead.
+	IsValidForPartyDialog("CORWIN")  
+	See("CORWIN") //just to make sure the two NPCs are near by each other, probably not needed if we use "IsValidForPartyDialog"
+THEN
+	RESPONSE #100
 		SetAreaScript("xxBiff01",GENERAL) //this is the banter "area" script containing the Biff-Corwin banter.
 END
+	</pre>
+      <p>The 2<sup>nd</sup> banter will be <strong>started by Corwin:</strong>, so we put its initiation into Corwin's OVERRIDE script.</p> 
+      <p class="info">Putting the triggering script block into Corwin's OVERRIDE would not be necessary, it could be executed by Biff's OVERRIDE just as well. We put it here to enable compatibility with the option to convert the banters into "dyalogue style" as shown in chapter 4.</p>
+      <p>We patch this into Corwin's OVERRIDE script <strong>bdcorwin.bcs</strong>:</p> 
+	<pre class="code">	  
+/* 2nd banter is initiated in CORWIN's script by setting the area script to the custom script containing our banter. */
+/* initiate 2nd banter */
+IF
+	Global("xxBiff_SoD_CorwinBanter","GLOBAL",5) //trigger value for first banter - will be closed in 1st banter
+	/* "IsValidForPartyDialog" is working in a reliable fashion in the EE, but if you prefer you can use the wellknown "CD_STATE_NOTVALID" state check together with See() and InParty() instead. */
+	IsValidForPartyDialog(Myself) //"Myself" is Corwin in this script
+	IsValidForPartyDialog("xxBiff") //Biff needs to be able to talk, too.
+	See("xxBiff") //just to make sure the two NPCs are near by each other, probably not needed if we use "IsValidForPartyDialog"
+THEN
+	RESPONSE #100
+		SetAreaScript("xxBiff02",GENERAL) //this is the banter "area" script containing the 2nd Biff-Corwin banter.
+END
+	</pre>
+      <p>And the actual patching of Corwin's OVERRIDE script in the <strong>tp2</strong>:</p> 
+	<pre class="code">	  
+/* 2nd banter is initiated in CORWIN's script by setting the area script to the custom script containing our banter. */
+EXTEND_BOTTOM ~bdcorwin.bcs~ ~%MOD_FOLDER%/baf/xxBiff_corwin.baf~
+EVALUATE_BUFFER
 	</pre>
 
 
       <h2><a name="toc_2">2. The Banter "Area" Script</a></h2>
-      <p>Now we need the banter "area" script that contains the Biff-Corwin banter. The name we give it for this tutorial is "xxBiff01". Since script names are bound to a maximum letter count of 8 including your prefix, just numbering them serially for the different NPC banters might by a good idea.</p>
+      <p>Now we need the banter "area" scripts that contains the Biff-Corwin banter. The name we give the first banter for this tutorial is "xxBiff01". Since script names are bound to a maximum letter count of 8 including your prefix, just numbering them serially for the different NPC banters might be a good idea. The 2nd banter "area" script will therefore be named "xxBiff02".</p>
 	  <p>The second script block resets the area script after the banter is done.</p>
-	  <p class="info">If you prefer to put all your banters into one banter "area" script, do not forget to close the trigger variable inside the relevant banter script block. The tutorial reflects this in the comments. Also, in this case the "second" script block that resets the area script needs to be included only once at the end of the file.</p>
+	  <p>So the first banter "area" script file "xxBiff01.baf" would contain the following:</p>
+	<p class="info">Please note: this example of the first banter without Minsc's interjection is skipped and not included into the mod tutorial Package "Biff the Tutorial SoD NPC Mod". Refer to chapter 3 to see the banter that is included into the tutorial mod package.</p>
 	 <pre class="code">  
-/*  banter "area" script "xxBiff01.baf" with Biff-Corwin banter: */
+/*  banter "area" script "xxBiff01.baf" with 1st Biff-Corwin banter: */
 IF
 	InMyArea(Player1)
 	!ActuallyInCombat()
 	!GlobalTimerNotExpired("BD_BANTER_DELAY","MYAREA") //this means "timer IS expired" or "was never set yet"
-	!Global("xx_SoD_xxBiff01","MYAREA",-1) //This is how SoD does it, with one banter per file. If you want to put all banters into one file, use "GlobalGT("xx_SoD_xxBiff01","MYAREA",0)" instead, so only this banter can fire.
-	Switch("xx_SoD_xxBiff01","MYAREA") //this switches between the different RESPONSE #x depending on the variable's value ("x").
+	!Global("xxBiff_SoD_xxBiff01","MYAREA",-1) //stop the loop if the variable is at "-1"
+	Switch("xxBiff_SoD_xxBiff01","MYAREA") //this switches between the different RESPONSE #x depending on the variable's value ("x").
 THEN
-	RESPONSE #0 //This is how SoD does it, with one banter per file. 
-	//use "RESPONSE #1" instead if you want to put all banters into one file and the Global("xx_SoD_xxBiff01","MYAREA",1) was set to "1" in Biff's script (because then the variable is already at 1 when this banter script is called.)
+	RESPONSE #0 
 		DisplayStringHead("xxBiff",~I'm not sure what I should be talking about. I know all the other NPC's lines, though! Pretend I'm Minsc, yes?~)  
 		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",9) //The value given here is the time in seconds until the next NPC line is shown. Chose the value depending on the length of the sentence / audio file.
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",10) //This makes the "switch" jump to the "RESPONSE #10" for the next loop: the script is still active, the script block gets executed again, but this time, Corwin replies:
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",10) //This makes the "switch" jump to the "RESPONSE #10" for the next loop: the script is still active, the script block gets executed again, but this time, Corwin replies:
 	RESPONSE #10
-		DisplayStringHead("CORWIN",58849)  // There's no shortfall of faces deserving a good kick in this world. I'm sure we'll come across one sooner than later.
+		DisplayStringHead("CORWIN",%2%58849)  // ~There's no shortfall of faces deserving a good kick in this world. I'm sure we'll come across one sooner than later.~ - We use existing lines from here, the string numbers have to be ajusted for EET. //the "%2%" is for unifying string reference numbers for SoD and EET. Definition and use please refer to Modding Tutorial Part 3, Chapter "Training the Recruits in the Coalition Camp".
 		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",8)
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",20)
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",20)
 	RESPONSE #20
-		DisplayStringHead("xxBiff",58850)  // And then Minsc does what he does best! Hehe!
+		DisplayStringHead("xxBiff",%2%58850)  // ~And then Minsc does what he does best! Hehe!~ 
 		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",4)
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",30)
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",30)
 	RESPONSE #30
-		DisplayStringHead("corwin",58851)  // Ramble nonsensically to his pet rodent about other peoples' rears?
-		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",ONE_MINUTE) //With ONE_MINUTE = 6 seconds real time
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",40)
+		DisplayStringHead("corwin",%2%58851)  // ~Ramble nonsensically to his pet rodent about other peoples' rears?~
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",ONE_MINUTE) //With ONE_MINUTE = 6
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",40)
 	RESPONSE #40
-		DisplayStringHead("xxBiff",58852)  // And then Minsc will do what he does second best!
+		DisplayStringHead("xxBiff",%2%58852)  // ~And then Minsc will do what he does second best!~
 		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",4)
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",-1) //this defines the banter to end, and the wanted "loop" cycle stops. The script is still active, so the second script blocks gets executed:
+		SetGlobal("xxBiff_SoD_CorwinBanter","GLOBAL",3) // close variable after 1st banter
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",-1) //this defines the banter to end, and the wanted "loop" cycle stops. The script is still active, so the second script blocks gets executed:
 END
 
 /* second script block: deactivate this script by resetting the area script. This script block is needed once at the end of the banter "area" file. */
@@ -261,58 +323,93 @@ THEN
 		SetAreaScript("",GENERAL) //sets area script back (default is "no GENERAL script")
 END
 	</pre>
+	  <p>The second banter "area" script file "xxBiff02.baf" would contain the following. To make the example more intseresting, this dialogue will be started by Corwin, not Biff.</p>
+	 <pre class="code">  
+/*  banter "area" script "xxBiff02.baf" with 2nd Biff-Corwin banter. This banter is started by Corwin: */
+IF
+	InMyArea(Player1)
+	!ActuallyInCombat()
+	!GlobalTimerNotExpired("BD_BANTER_DELAY","MYAREA") //this means "timer IS expired" or "was never set yet"
+	!Global("xxBiff_SoD_xxBiff02","MYAREA",-1) //stop the loop of this banter if the variable is at "-1"
+	Switch("xxBiff_SoD_xxBiff02","MYAREA") //this switches between the different RESPONSE #x depending on the variable's value ("x").
+THEN
+	RESPONSE #0 
+		DisplayStringHead("CORWIN",~Som what does it feel like, being a real NPC and not only the Understudy?~)  
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",7) //The value given here is the time in seconds until the next NPC line is shown. Chose the value depending on the length of the sentence / audio file.
+		SetGlobal("xx_SoD_xxBiff01","MYAREA",10) //This makes the "switch" jump to the "RESPONSE #10" for the next loop.
+	RESPONSE #10
+		DisplayStringHead("xxBiff",~Wait, I don't know that line... Oh, it's a real question! Thank you! Thank you, Corwin! I feel great!~
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",4)
+		SetGlobal("xxBiff_SoD_CorwinBanter","GLOBAL",6) // close variable of 2nd banter - was at "5"
+		SetGlobal("xxBiff_SoD_xxBiff02","MYAREA",-1) //this defines the banter to end, and the wanted "loop" cycle stops. The script is still active, so the second script blocks gets executed:
+END
+
+/* second script block: deactivate this script by resetting the area script. This script block is needed once at the end of the banter "area" file. */
+IF
+	!GlobalTimerNotExpired("BD_BANTER_DELAY","MYAREA") //this means "timer IS expired"
+THEN
+	RESPONSE #100
+		SetAreaScript("",GENERAL) //sets area script back (default is "no GENERAL script")
+END
+	</pre>
+	  <p>And the according compilation of the banter "area" files in the tp2:</p>
+	 <pre class="code">  
+/* banter scripts with Corwin */
+COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/baf/xxBiff01.baf~
+COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/baf/xxBiff02.baf~
+	</pre>
 	
       <h2><a name="toc_3">3. Having another NPC Interject into the Banter</a></h2>
 	  <p>What if we want to have another NPC participate in the banter, but without making the whole banter dependent on this other NPC's presence? If they are there and can talk, they should pipe in, but if not, the banter between Corwin and Biff should fire nontheless.</p>
-	  <p>For this, we include the other NPC's line into our banter "area" script, together with another script block that toggles the switch variable. Let's say Minsc should say something after Biff's first line if he's there. If not, the banter should skip his line and just Corwin and Biff should banter with each other.</p>
-	  <p>For Biff's first line, the variable is either at "0" (if we chose one banter per file and did not set the variable in Biff's script), or at "1" if it was set in Biff's script. Corwin's line then follows for "10". Minsc's line should be between the two, so we set the variable to "2", i.e. a value between the two others.</p>
+	  <p>For this, we include the other NPC's line into our banter "area" script, together with another script block that toggles the switch variable. Let's say Minsc should say something after Biff's first line if he's there. If not, the banter should skip his line and just Corwin and Biff should banter with each other like they would in the example of section 2.</p>
+	  <p>For Biff's first line, the variable is at "0" (if we chose one banter per file and did not set the variable in Biff's script, or it is at "1" if it was set in Biff's script). Corwin's line then follows for "10". Minsc's line should be between the two, so we set the variable to "2", i.e. a value between the two others.</p>
 	  <p>In this case, the xxBiff01.baf would look like this:</p>
 	 <pre class="code">  
-/*  banter "area" script "xxBiff01.baf" with Biff-Corwin banter including Minsc's interjection: */
+/*  banter "area" script "xxBiff01.baf" with 1st Biff-Corwin banter including Minsc's interjection: */
 
 /* this script block toggles Minsc's line: if he is there an can talk, his line will come before Corwin's. */
 IF
-	Global("xx_SoD_xxBiff01","MYAREA",10) //"10" means Corwin's line would be next
-	Global("xx_SoD_xxBiff01_2","MYAREA",0)
+	Global("xxBiff_SoD_xxBiff01","MYAREA",10) //"10" means Corwin's line would be next
+	Global("xxBiff_SoD_xxBiff01_2","MYAREA",0) //make sure this script block only runs once when it should
 	IfValidForPartyDialogue("MINSC")  // Minsc is present and can talk
 THEN
 	RESPONSE #100
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",2) //variable is set to "2" so now Minsc can say his line
-		SetGlobal("xx_SoD_xxBiff01_2","MYAREA",1)
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",2) //variable is set to "2" so now Minsc can say his line
+		SetGlobal("xxBiff_SoD_xxBiff01_2","MYAREA",1) //close variable of this script block so it only runs once
 END
 
 IF
 	InMyArea(Player1)
 	!ActuallyInCombat()
 	!GlobalTimerNotExpired("BD_BANTER_DELAY","MYAREA") //this means "timer IS expired" or "was never set yet"
-	!Global("xx_SoD_xxBiff01","MYAREA",-1) //This is how SoD does it, with one banter per file. If you want to put all banters into one file, use "GlobalGT("xx_SoD_xxBiff01","MYAREA",0)" instead, so only this banter can fire.
-	Switch("xx_SoD_xxBiff01","MYAREA") //this switches between the different RESPONSE #x depending on the variable's value ("x").
+	!Global("xxBiff_SoD_xxBiff01","MYAREA",-1) //stop the loop if the variable is at "-1"
+	Switch("xxBiff_SoD_xxBiff01","MYAREA") //this switches between the different RESPONSE #x depending on the variable's value ("x").
 THEN
-	RESPONSE #0 //This is how SoD does it, with one banter per file. 
-	//use "RESPONSE #1" instead if you want to put all banters into one file and set the Global("xx_SoD_xxBiff01","MYAREA",1) to "1" in Biff's script (because then the variable is already at 1 when the script is called.)
+	RESPONSE #0 
 		DisplayStringHead("xxBiff",~I'm not sure what I should be talking about. I know all the other NPC's lines, though! Pretend I'm Minsc, yes?~)  
-		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",9) 
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",10) 
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",9) //The value given here is the time in seconds until the next NPC line is shown. Chose the value depending on the length of the sentence / audio file.
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",10) 
 	RESPONSE #2 //This is Minsc's line
 		DisplayStringHead("MINSC",~Ah, but Biff will never be a real Minsc, without a giant space hamster!~)  
 		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",7) 
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",10) //now the variable is reset to "10" and Corwin's line will fire next.
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",10) //This makes the "switch" jump to the "RESPONSE #10" for the next loop: the script is still active, the script block gets executed again, but this time, Corwin replies:
 	RESPONSE #10
-		DisplayStringHead("CORWIN",58849)  // There's no shortfall of faces deserving a good kick in this world. I'm sure we'll come across one sooner than later.
+		DisplayStringHead("CORWIN",%2%58849)  // ~There's no shortfall of faces deserving a good kick in this world. I'm sure we'll come across one sooner than later.~ - We use existing lines from here, the string numbers have to be ajusted for EET. //the "%2%" is for unifying string reference numbers for SoD and EET. Definition and use please refer to Modding Tutorial Part 3, Chapter "Training the Recruits in the Coalition Camp".
 		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",8)
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",20)
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",20)
 	RESPONSE #20
-		DisplayStringHead("xxBiff",58850)  // And then Minsc does what he does best! Hehe!
+		DisplayStringHead("xxBiff",%2%58850)  // ~And then Minsc does what he does best! Hehe!~ 
 		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",4)
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",30)
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",30)
 	RESPONSE #30
-		DisplayStringHead("corwin",58851)  // Ramble nonsensically to his pet rodent about other peoples' rears?
-		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",ONE_MINUTE) 
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",40)
+		DisplayStringHead("corwin",%2%58851)  // ~Ramble nonsensically to his pet rodent about other peoples' rears?~
+		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",ONE_MINUTE) //With ONE_MINUTE = 6
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",40)
 	RESPONSE #40
-		DisplayStringHead("xxBiff",58852)  // And then Minsc will do what he does second best!
+		DisplayStringHead("xxBiff",%2%58852)  // ~And then Minsc will do what he does second best!~
 		SetGlobalTimer("BD_BANTER_DELAY","MYAREA",4)
-		SetGlobal("xx_SoD_xxBiff01","MYAREA",-1) 
+		SetGlobal("xxBiff_SoD_CorwinBanter","GLOBAL",3) // close variable after 1st banter
+		SetGlobal("xxBiff_SoD_xxBiff01","MYAREA",-1) //this defines the banter to end, and the wanted "loop" cycle stops. The script is still active, so the second script blocks gets executed:
 END
 
 /* second script block: deactivate this script by resetting the area script. This script block is needed once at the end of the banter "area" file. */
@@ -320,11 +417,190 @@ IF
 	!GlobalTimerNotExpired("BD_BANTER_DELAY","MYAREA") 
 THEN
 	RESPONSE #100
-		SetAreaScript("",GENERAL) 
+		SetAreaScript("",GENERAL) //sets area script back (default is "no GENERAL script")
+END
+
+/* second script block: deactivate this script by resetting the area script. This script block is needed once at the end of the banter "area" file. */
+IF
+	!GlobalTimerNotExpired("BD_BANTER_DELAY","MYAREA") 
+THEN
+	RESPONSE #100
+		SetAreaScript("",GENERAL) //sets area script back (default is "no GENERAL script")
 END
 	</pre>
+
+
+      <h2><a name="toc_4">4. Include Optional Component for Banters in "Dialog Style"</a></h2>
+      <p>This section shows how you can transfer the "SoD style banters" into "dialogue style" banters, with banters not happening as text lines above the NPC's heads while they walk around but inside a dialogue box like they are in BG2 and most mods. The syntax for the tp2 conversion from script call to NPC interaction was taken from the mod <a href="https://forums.beamdog.com/discussion/66674/sod-dialogue-banters">SoD Dialogue Banters, by AstroBryGuy</a> which gives this conversion for the original NPCs.</p>
+	  <p>For this, we first need to prepare the game to be able to play banters with the NPCs' banter files defined in bdbanter.2da. The engine supports it in SoD, but because of the different way of scripting banters in SoD, the bdbanter.2da does not exist in the original game. Also, the original game does not include the actual banter files for the original NPCs. We will need to add all files first if they are not already present from another mod. See also <a href="https://www.gibberlings3.net/forums/topic/34950-how-to-assigning-banter-files-for-original-npcs-to-bdbanter2da-in-sod-community-effort/">[How-To] Assigning Banter Files for Original NPCs to bdbanter.2da in SoD (Community Effort)</a>.</p>
+	  <p class="info">Please note: in BG:SoD, Imoen's scriptname is IMOEN, whereas in EET you'll see that it is IMOEN2. Since EET ships with bdbanter.2da present, we only need to consider SoD. We can use the same code to patch it for EET because we check for the existence of all files anyhow just in case another mod already put them in.</p>
+      <p>This is the contents of <strong>bdbanter.2da</strong> we put into an own file:</p>
+	 <pre class="code">  
+2DA      V1.0
+NONE
+         FILE
+KIVAN    BDKIVANB
+ALORA    BDALORAB
+MINSC    BDMINSCB
+DYNAHEIR BDDYNAHB
+YESLICK  BDYESLIB
+CORAN    BDCORANB
+AJANTIS  BDAJANTB
+KHALID   BDKHALIB
+JAHEIRA  BDJAHEIB
+GARRICK  BDGARRIB
+SAFANA   BDSAFANB
+FALDORN  BDFALDOB
+BRANWEN  BDBRANWB
+QUAYLE   BDQUAYLB
+XAN      BDXANB
+SKIE     BDSKIEB
+ELDOTH   BDELDOTB
+XZAR     BDXZARB
+MONTARON BDMONTAB
+TIAX     BDTIAXB
+KAGAIN   BDKAGAIB
+SHARTEEL BDSHARTB
+EDWIN    BDEDWINB
+VICONIA  BDVICONB
+IMOEN    BDIMOENB
+NEERA    BDNEERAB
+DORN     BDDORNB
+RASAAD   BDRASAAB
+BAELOTH  BDBAELOB
+VOGHILN  BDVOGHIB
+MKHIIN   BDMKHIIB
+CORWIN   BDCORWIB
+GLINT    BDGLINTB
+	</pre>
+      <p>To first create - if not already present - and also patch the bdbanter.2da, this is what you need to add to the<strong>tp2</strong>, with "xxBiff" being the example NPC's scriptname you would replace with your NPC's scriptname.</p>
+	 <pre class="code">  
+/* SoD bdbanter.2da - create if not present and patch with Biff's entry */
+ACTION_IF !(FILE_EXISTS_IN_GAME ~BDBANTER.2DA~) BEGIN
+  COPY ~%MOD_FOLDER%/2da/BDBANTER.2DA~ ~override~ 
+END
+ACTION_IF (FILE_EXISTS_IN_GAME ~BDBANTER.2DA~) BEGIN
+  APPEND ~bdbanter.2da~
+		~xxBiff 	xxBiffB~ //replace with scriptname and banter file name of your NPC
+  UNLESS ~xxBiff~ //replace with scriptname of your NPC      
+END
+	</pre>
+	  <p>Next problem is that the banter.dlgs of the NPCs are not existent in the original SoD game, as already pointed out. They need to be present if we want to add to them, so we make sure they are created, but only if they were not present already. Again, this can be used for EET without adaption.</p>
+      <p>To create the banter.dlgs if they are not present yet, this goes into the <strong>tp2</strong> of your NPC mod. This syntax considers all banter.dlgs for all original NPCs:</p>
+	 <pre class="code">  
+/* Create NPC's Banter file if not present */
+COPY ~%MOD_FOLDER%/2da/BDBANTER.2DA~ ~%MOD_FOLDER%/install~
+	COUNT_2DA_COLS cols
+	COUNT_2DA_ROWS cols rows
+	FOR ( row = 2 ; row < rows ; row = row + 1 ) BEGIN
+		READ_2DA_ENTRY %row% 0 2 npc_dv
+    	READ_2DA_ENTRY %row% 1 2 banterfile
+      	INNER_ACTION BEGIN
+		ACTION_IF NOT FILE_EXISTS_IN_GAME ~%banterfile%.dlg~ THEN BEGIN
+		<<<<<<<< .../banterfiles-inlined/%banterfile%.d
+		 BEGIN %banterfile%
+		>>>>>>>>
+		COMPILE EVALUATE_BUFFER ~.../banterfiles-inlined/%banterfile%.d~ 
+		END
+      	END
+	END
+BUT_ONLY
+	</pre>
+	  <p>For the actual banters, we do need an extra d-file containing all banters with the lines from the banter "area" baf-files. All banters with all NPCs can go into the same d-file.</p>
+	  <p class="info">Please note: This banter d-file and the banter "area" script files will use the same text lines. Make sure you use the same tra-file for both d-file and baf-files containing the banters when you "traify" the mod so lines will not be doubled.</p>
+	  <p>For Biff's banters, the file will be called <strong>xxbiff_banter_sod.d</strong> and has the following content:</p>
+	 <pre class="code">  
+/* (T4) this is xxbiff_banter_sod.d: Biff's banters in "dialogue style" format, for the optional component to transform his banters. Triggered by his OVERRIDE script. */
+
+/* 1st with Corwin, "xxBiff01.baf". Minsc interjects if he's present */
+CHAIN
+IF WEIGHT #-1
+/* We only need the checking variable here. All other checks (whether NPCs can talk etc. was done inside the script. */
+~Global("xxBiff_SoD_CorwinBanter","GLOBAL",2)~ THEN xxBiffB biff_corwin_sod_1
+~I'm not sure what I should be talking about. I know all the other NPC's lines, though! Pretend I'm Minsc, yes?~
+DO ~SetGlobal("xxBiff_SoD_CorwinBanter","GLOBAL",3)~ //we need to close the variable for dialogue style, too.
+/* Minsc's line - will only show if he's present and can talk. */
+== BDMINSCB IF ~IfValidForPartyDialogue("MINSC")~ THEN ~Ah, but Biff will never be a real Minsc, without a giant space hamster!~
+/* the "%2%" is for unifying string reference numbers for SoD and EET. Definition and use please refer to Modding Tutorial Part 3, Chapter "Training the Recruits in the Coalition Camp". */
+== BDCORWIB #%2%58849 
+== xxBiffB #%2%58850
+== BDCORWIB #%2%58851
+== xxBiffB #%2%58852
+EXIT
+
+/* 2nd with Corwin, "xxBiff02.baf" - started by Corwin */
+CHAIN
+IF WEIGHT #-1
+/* We only need the checking variable here. All other checks (whether NPCs can talk etc. was done inside the script. */
+~Global("xxBiff_SoD_CorwinBanter","GLOBAL",5)~ THEN BDCORWIB biff_corwin_sod_2
+~So, what does it feel like, being a real NPC and not only the Understudy?~
+DO ~SetGlobal("xxBiff_SoD_CorwinBanter","GLOBAL",6)~ //we need to close the variable for dialogue style, too.
+== xxBiffB ~Wait, I don't know that line... Oh, it's a real question! Thank you! Thank you, Corwin! I feel great!~
+EXIT
+	</pre>
+	  <p>Now we need to adapt the triggering of the banters. Currently, an area script is set. We need to change this to "Interact()" between the two NPCs talking. To make the transformation as simple as possible, we will use a 2da file which will give details about the banter area file name, the NPC script triggering the banter, and the scriptname of the NPC spoken to for every banter.</p>	
+	 <p>The rows and columns in the xxbiffbx.2da mean the following:</p> 
+	  <ol>
+        <li>Each row is for one banter. The first column gives the "area" script file name of the relevant banter.</li>
+        <li>The second column gives the OVERRIDE scripts the banter will be started from.</li>
+        <li>The third column gives the scriptname (death variable) of the NPC <strong>spoken to</strong> (i.e. not the NPC starting the banter, but the one that should be the conversion partner being addressed in the banter).</li>
+	  </ol>
+	  <p>For the two banters with Corwin, the 2da would look like this. We call it <strong>xxbiffbx.2da</strong>:</p>
+	 <pre class="code">  
+/* banter area file name - OVERRIDE script - scriptname of conversion partner */
+xxBiff01	xxBiffs		CORWIN
+xxBiff02	bdcorwin	xxBiff
+	</pre>
+	  <p>This is the code you need in the tp2 to let weidu make the transformation upon install: all "SetAreaScript"s are now transformed into "Interact()" actions, and because of the 2da the installer knows which banter should be triggered by which script block because each banter has a unique file name. (This is why we put every banter into a single file.)</p>
+	 <pre class="code">  
+/* change the calling of the scripts to "Interact("npc") for all banters 
+Code taken from AstroBryGuy's "SoD Dialog Banters" mod with many thanks! */
+// Edit NPC scripts to start Interact actions for banters
+COPY ~%MOD_FOLDER%/2da/xxBiffbx.2da~ ~c#brandock/install~
+	COUNT_2DA_COLS cols
+	COUNT_2DA_ROWS cols rows
+	FOR ( row = 0 ; row < rows ; row = row + 1 ) BEGIN
+		READ_2DA_ENTRY %row% 0 3 banter
+    	READ_2DA_ENTRY %row% 1 3 script
+    	READ_2DA_ENTRY %row% 2 3 interact
+      	INNER_ACTION BEGIN
+      		COPY_EXISTING ~%script%.BCS~ ~override~
+    			DECOMPILE_AND_PATCH BEGIN
+        			REPLACE_TEXTUALLY ~SetAreaScript("%banter%",GENERAL)~ ~Interact("%interact%")~
+        		END
+        	BUT_ONLY
+      	END
+	END
+BUT_ONLY
+	</pre>
+      <p>Now we only need to wrap this into an optional component which is dependent on the main mod, and we are done - all players happy!</p> 
+      <p>The following covers the structure for the optional component and goes into the <strong>tp2</strong>. To complete it, fill in the above given tp2 content:</p>
+	<pre class="code">	  
+///////////////////////////////////////////////////////////
+// Use Dialogue Style for SoD Banters //
+/////////////////////////////////////////////////////////
+
+
+BEGIN ~Use Dialogue Style for SoD Banters for Biff~ 
+DESIGNATED 10 /* giving the component a DESIGNATED number which will not change in the future is of great importance for crossmod compatibility. In this case, "10" is an arbitrary number greater than "0" which is the main component. Chose the number so it makes sense in your mod. */
+LABEL xxbiff_sod_tutorial_mod-dialogue_style_sod_banter /* define a unique global label for this mod component(!). It basically does what DESIGNATED does, only better. And it helps Project Infinity remember the component when setting up an install list. */
+/* make sure the component can only be installed if the main component is installed */
+REQUIRE_COMPONENT ~xxBiff.tp2~ ~0~  ~Biff main component needs to be installed for this.~
+/* in case your main mod also covers other games than SoD, we include the SoD check again because this component only makes sense for SoD: */
+REQUIRE_PREDICATE (GAME_IS ~bgee eet~ AND FILE_EXISTS_IN_GAME ~bd0103.are~) @90001 /* ~This mod is really only for SoD~ */
+
+//add creation of bdbanter.2da here (s. above) - it could also go into the main mod.
+
+//add creation of banter files for original NPCs here (s. above)
+
+COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxbiff_banter_sod.d~
+
+//add conversion from "SetAreaScript" to "Interact" here (s. above)
+
+	</pre>
+	
 	  
-      <h2><a name="toc_4">4. Credits, Used Tools, and Helpful Links</a></h2>
+      <h2><a name="toc_100">5. Credits, Used Tools, and Helpful Links</a></h2>
 	  <p>Thank you to Argent77 for the html template!</p>
 	  <p>Used Tools:</p>
       <p><a href="https://github.com/Argent77/NearInfinity/releases/latest">Near Infinity</a></p>
@@ -337,9 +613,18 @@ END
       <p><a href="http://www.spellholdstudios.net/">Spellhold Studios</a></p>
       <p><a href="http://www.pocketplane.net/mambo/">Pocket PLane Group</a></p>
       <p><a href="http://forums.blackwyrmlair.net/index.php?showtopic=113">Prefix Reservation at Black Wyrm Lair Forums</a></p>
+	  <p><a href="https://forums.beamdog.com/discussion/66674/sod-dialogue-banters">Mod: SoD Dialogue Banters, by AstroBryGuy</a></p>
+	  <p><a href=
+	  <p><a href="https://forums.pocketplane.net/index.php?topic=23822.0">"Tutorial: How to ensure your banters always run when you want them to"</a></p>
+	  <p><a href="https://www.gibberlings3.net/forums/topic/34950-how-to-assigning-banter-files-for-original-npcs-to-bdbanter2da-in-sod-community-effort/">[How-To] Assigning Banter Files for Original NPCs to bdbanter.2da in SoD (Community Effort)</a>.</p>
 	  
 	  
-      <h2><a name="toc_5">5. Version History</a></h2>
+      <h2><a name="toc_101">6. Version History</a></h2>
+          <p>Version 3:</p>
+          <ul>
+            <li>Added new chapter: Include Optional Component for Banters in "Dialog Style"</li>
+            <li>Examples in chapters 1-3 adjusted for compatibility with new chapter 4. (i.e. used variables changed; comments on how to put all banters into one single baf file removed.)</li>
+          </ul>
           <p>Version 2:</p>
           <ul>
             <li>moved sidenote about detecting SoD into tutorial no. 1 "Automatic Transition of NPCs into SoD and between Camps in SoD"</li>
