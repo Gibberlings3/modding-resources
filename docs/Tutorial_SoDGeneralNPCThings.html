@@ -418,7 +418,7 @@ EXTEND_TOP ~bd0120.bcs~ ~%MOD_FOLDER%/baf/bd0120_commenting_et.baf~
 	<h2><a name="toc_4">4. Comment in the morning after the last night in the Ducal Palace (before heading out against the Crusade)</a></h2>
     <p>This is for NPCs the player takes into the group before leaving for the crusade. In the game, all original NPCs recruitable in BG city, i.e. Minsc, Dynaheir, and Safana, have a comment in the morning after the last night in the Ducal Palace, after Skie woke up the PC. For this, those three NPCs are moved into the PC's bed chamber by bdcut05.bcs which is triggered by Skie's dialgogue bdskie.dlg. Multiplayer NPCs (or mod NPCs without an addition) will be standing in the hall between the PC's and Imoen's chambers.</p> 
 	<p>The actual moving of the party NPCs is done by bdcut05.bcs, but it is scripted in a way that patching it neither at top nor bottom will move mod NPCs in time. If we want Biff to be in the room, too, we need to patch the JumpToPoint to his OVERRIDE script. His morning comment needs to be patched to <strong>bd0103.bcs</strong> via EXTEND_TOP.</p>
-	  <p class="info">This is only needed for your NPC if they are already available inside Baldur's Gate city.</p> 
+	  <p class="info">This is only needed for your NPC if they are already available inside the Baldur's Gate city areas of SoD.</p> 
 	<p>The following goes into Biff's OVERRIDE script xxBiffs.baf:</p>
 	<pre class="code">	
 /* Move Biff to the table in the morning after the last night in the Ducal Palace (before heading out against the Crusade) */
@@ -490,7 +490,7 @@ THEN
 	RESPONSE #10
 		SetGlobalTimer("bd_mdd010z_ot_timer","bd0101",ONE_ROUND)
 		SetGlobal("bd_mdd010z_ot","bd0101",0)
-		DisplayStringHead("xxBiff",~Wait... do I have all the scripts? (murmurs) Corwin, Dunkan, Glint... Yes, all here. (phew)~
+		DisplayStringHead("xxBiff",~Wait... do I have all the scripts? (murmurs) Corwin, Dunkan, Glint... Yes, all here. (phew)~)
 		Continue()
 END
 	</pre>
@@ -581,8 +581,7 @@ EXTEND_BOTTOM ~bd1000.bcs~ ~%MOD_FOLDER%/baf/bd1000_commenting.baf~
         <li>Biff will have a comment as floating text in case the spike trap is activated to kill the crusaders.</li>
 	  </ol>	  
 	  <p>The comment into the dialogue is a simple I_C_T that needs to be put into a .d-file. In the tutorial mod package it is called <strong>sod_event_comments.d</strong>:<p>	  
-	 <pre class="code"> 
-/* put this into sod_event_comments.d */	 
+	 <pre class="code"> 	 
 /* PC threatens to kill the crusaders with the spikes in bd7230.are */
 I_C_T bdkharmy 6 xxBiff_bdkharmy_6
 == xxBiffJ IF ~IsValidForPartyDialogue("xxBiff")~ THEN ~Wow, eeeevil.~
@@ -928,7 +927,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment before entering the Cave with the blind Wyrmlings (bd5100aw.bcs) */
-EXTEND_BOTTOM ~bd5100aw.bcs~ ~%MOD_FOLDER%/baf/xxbd5100aw_commenting.baf.baf~
+EXTEND_BOTTOM ~bd5100aw.bcs~ ~%MOD_FOLDER%/baf/xxbd5100aw_commenting.baf~
 EVALUATE_BUFFER
 	</pre>	
 	  <p>The comment is an actual dialogue pop up. The following goes into the NPC's joined dialogue file:</p>
@@ -1085,14 +1084,14 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment in Dragonspear Castle Exterior */
-EXTEND_BOTTOM ~bdbark01.bcs~ ~%MOD_FOLDER%/baf/xxbdbark01_commenting.baf.baf~
+EXTEND_BOTTOM ~bdbark01.bcs~ ~%MOD_FOLDER%/baf/xxbdbark01_commenting.baf~
 EVALUATE_BUFFER
 	</pre>
 		
 		
       <h2><a name="toc_19">22. Move the PC in the cutscene of the plotting nobles in Three Old Kegs (bdc116d.bcs)</a></h2>
 	  <p>When the PC interacts with the plotting nobles in the Three Kegs there is a cutscene which gets called twice which places the party NPCs inside the northwest room where the confrontation with the Flaming Fist takes place. Unfortunately, instead of just using the general Player2-6 the script works with the explicit NPC names that are available until then - Safana, Minsc, and Dynahier. We need to add our NPC explicitely, too.</p>
-	  <p class="info">This is only needed for your NPC if they are already available inside Baldur's Gate city.</p> 
+	  <p class="info">This is only needed for your NPC if they are already available inside the Baldur's Gate city areas of SoD.</p> 
 	  <p>This is what we will patch to <strong>bdc116d.bcs</strong>:</p>
 	 <pre class="code">  
 /* xxbdc116d.baf */
@@ -1354,13 +1353,13 @@ IF ~~ THEN DO ~SetGlobal("xxBiff_SoDThrix","GLOBAL",11)~ EXIT // We need to do t
 
 /* Clovis */
 EXTEND_BOTTOM BDCLOVIS 3
-+ ~IfValidForPartyDialogue("xxBiff")~ + ~[PC reply]Biff, any advice?~ */ EXTERN xxBiffJ teach_clovis
++ ~IfValidForPartyDialogue("xxBiff")~ + ~[PC reply]Biff, any advice?~ EXTERN xxBiffJ teach_clovis
 END
 
 CHAIN
 IF ~~ THEN xxBiffJ teach_clovis
 ~I see a mistake smaller men do when trained by taller ones. Fighting wears your arms out quite a bit, doesn't it?~
-== #%2%48085 /* ~I do tire pretty quickly during drills. I thought I just needed more training.~ */
+== BDCLOVIS #%2%48085 /* ~I do tire pretty quickly during drills. I thought I just needed more training.~ */
 == xxBiffJ ~Focus on weak spots were you do not have to reach upwards. There are more than you might think. The foes will fear you for it - and you will wear out less quickly.~
 END
 IF ~~ THEN DO ~IncrementGlobal("BD_FIGHTERS_SKILL","BD3000",2)
@@ -1368,7 +1367,7 @@ SetGlobal("bd_sdd301_clovista_skill","global",2)~ EXTERN BDCLOVIS 5
 
 /* Danine */
 EXTEND_BOTTOM BDDANINE 3
-+ ~IfValidForPartyDialogue("xxBiff")~ + ~Biff, you think you can teach this recruit to improve her skills?~ EXTERN xxBiffsj teach_danine
++ ~IfValidForPartyDialogue("xxBiff")~ + ~Biff, you think you can teach this recruit to improve her skills?~ EXTERN xxBiffJ teach_danine
 END
 
 /* there will be a short fighting scene, then Biff talks again */
@@ -1587,10 +1586,12 @@ END
       <h2><a name="toc_101">31. Version History</a></h2>
           <p>Version 3:</p>
           <ul>
+            <li>Tutorial was revised and updated with new content. This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
             <li>New chapter: Training the Recruits in the Coalition Camp</li>
             <li>New chapter: The Chicken, the Well, and the Dog Easter Egg</li>
             <li>New chapter: Providing the "Skipit" Functionality for Cutscenes</li>
             <li>New chapter: Promotion of the Road to Discovery Mod and its Possibilities for your NPC Mod</li>
+            <li>Unified Biff's joined.dlg to "xxBiffJ".</li>
             <li>Chapter paragraphs are numbered now.</li>
             <li>Chapters about commenting in final scene deprecated ("Last area bd6100.are: comment in abduction scene (EET)").</li>
           </ul>	  

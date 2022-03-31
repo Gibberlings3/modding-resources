@@ -115,7 +115,7 @@
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
         <ol class="toc">
-          <li><a href="#toc_1">General throughts to transition into SoD "Korlasz' Crypt"</a></li>
+          <li><a href="#toc_1">General throughts to transition into SoD's "Korlasz' Crypt"</a></li>
           <li><a href="#toc_2b">Add Biff to Corwin's list about companions in BG city</a></li>
           <li><a href="#toc_2">Make Biff leave party after Korlasz' Crypt is cleared</a></li>
           <li><a href="#toc_3">Moving Biff to his new meeting point in BG city</a></li>
@@ -186,7 +186,7 @@
         </tr>
       </table>
 	  
-	  <h2><a name="toc_1">1. General throughts to transition into SoD "Korlasz' Crypt"</a></h2>
+	  <h2><a name="toc_1">1. General throughts to transition into SoD's "Korlasz' Crypt"</a></h2>
       <p class="info">This section is only of interest if your NPC was also available in BG:EE. If your NPC is a pure SoD NPC that will wait after the transition into the palace, you can skip this section.</p>
       <p class="info">Please be aware that my tutorials assume that your mod NPC uses the same joined dialogue in SoD like they use in the BG1 part of the game. If you are using a different joined dialogue for the SoD part, not only compatibility with EndlessBG1's and Transitions' "Korlasz' Crypt is in BG1" content will require special handling, but also examples in my tutorial mod about patching bddialog.2da etc. will need to be adjusted.</p>
 	  <p>After the end of BG:EE, the transition to SoD is done first by the cutscene "bdsodtrn.bcs" (triggered by Sarevok's death in AR0125.bcs) which sets the Global("SOD_fromimport","GLOBAL",1) with which the continuous game will be detected later, resurrects and completely heals all NPCs, and starts the SoD campaign ("MoveToCampaign("SoD")"). After that, the bd0120.bcs does party rearrangements depending on who is present (change Viconia's portrait, remove Imoen from the party, substituting her with Safana in case the party lacks a thief with either open locks or detect traps ability etc.) and calls the cutscene bdintro.bcs, which makes newly spawned replacement NPCs join the party and sets the NPCs override scripts and dialogues to the SoD ones.</p>
@@ -307,7 +307,6 @@ Biff will be waiting in front of the Ducal Palace */
 /* new SoD game */
 IF
 /* We consider two possibilities for detection whether Biff already existed. Chose what suits you best here. You could also chose e.g. Global("SOD_fromimport","global",0) for a new SoD game */
-  Global("xxBiffSpawn","GLOBAL",0) //SoD spawn variable
   !BeenInParty("xxBiff") //this variable is set automatically if Biff was in Party before. 
   Global("xxBiffSpawnBG1","GLOBAL",0) //Biff was not present in BG1 - from your BG1 potion of your NPC mod
   Global("xxBiffSpawn","GLOBAL",0) //spawn variable for SoD
@@ -925,9 +924,9 @@ COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxBiffsP_kickoutdialogue.d~
       <h2><a name="toc_14">16. Version History</a></h2>
           <p>Version 8:</p>
           <ul>
-            <li>Rewritten first section for compatibility with EndlessBg1 mod. New title: "General throughts to transition into SoD "Korlasz' Crypt"".</li>
+            <li>Tutorial was revised and updated with new content. This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
+            <li>Rewritten first section for compatibility with EndlessBG1 mod. New title: General throughts to transition into SoD's "Korlasz' Crypt".</li>
             <li>Chapter 2 "Add Biff to Corwin's list about companions in BG city" now uses I_C_T directly.</li>
-            <li>Tutorial revised and updated with new content. Also have a close look at the used variables, as they changed in some cases.</li>
             <li>Content list order corrected.</li>
           </ul>
           <p>Version 7:</p>

@@ -512,6 +512,8 @@ BUT_ONLY
 	 <pre class="code">  
 /* (T4) this is xxbiff_banter_sod.d: Biff's banters in "dialogue style" format, for the optional component to transform his banters. Triggered by his OVERRIDE script. */
 
+BEGIN xxBiffB //dlg needs to be created once
+
 /* 1st with Corwin, "xxBiff01.baf". Minsc interjects if he's present */
 CHAIN
 IF WEIGHT #-1
@@ -547,7 +549,6 @@ EXIT
 	  </ol>
 	  <p>For the two banters with Corwin, the 2da would look like this. We call it <strong>xxbiffbx.2da</strong>:</p>
 	 <pre class="code">  
-/* banter area file name - OVERRIDE script - scriptname of conversion partner */
 xxBiff01	xxBiffs		CORWIN
 xxBiff02	bdcorwin	xxBiff
 	</pre>
@@ -622,8 +623,9 @@ COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxbiff_banter_sod.d~
       <h2><a name="toc_101">6. Version History</a></h2>
           <p>Version 3:</p>
           <ul>
-            <li>Added new chapter: Include Optional Component for Banters in "Dialog Style"</li>
-            <li>Examples in chapters 1-3 adjusted for compatibility with new chapter 4. (i.e. used variables changed; comments on how to put all banters into one single baf file removed.)</li>
+            <li>Tutorial was revised and updated with new content. This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
+            <li>Added new chapter: Include Optional Component for Banters in "Dialog Style". Examples in chapters 1-3 adjusted for compatibility with new chapter 4. (i.e. used variables changed; comments on how to put all banters into one single baf file removed.)</li>
+            <li>Examples in chapters 1 and 3 expanded: Biff and Corwin banter two times now.</li>
           </ul>
           <p>Version 2:</p>
           <ul>
