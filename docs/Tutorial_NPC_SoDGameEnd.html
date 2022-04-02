@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD</h1>
 	  
-	<p>Version 6, by jastey</p>
+	<p>Version 7, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -128,7 +128,7 @@
         </ol>
       </div>
 
-      <p class="info">This tutorial deals with how to integrate your NPC into the events and cutscenes at the end of SoD. Biff the Understudy will be the example NPC in this guide.</p>
+      <p class="info">This tutorial deals with how to integrate your NPC into the events and cutscenes at the end of SoD. Biff the Understudy will be the example NPC in this guide. Note: I gave up on integrating the NPC at the end cutscene, so this tutorial is not helpful if you want to have your NPC walk alongseide the PC in the abduction scene. The former chapters regarding this are still in for reference, though.</p>
 	  <p class="info">Note: This tutorial contains heavy SoD spoilers.</p>
       <p><strong>Some nomenclature:</strong></p>
       <table>
@@ -140,7 +140,7 @@
         </tr>
         <tr>
           <td>xxBiff</td>
-          <td>Biff's script name (death variable)</td>
+          <td>Biff's scriptname (death variable)</td>
         </tr>
         <tr>
           <td>xxBiffs.bcs</td>
@@ -158,7 +158,7 @@
 	  <p>The first of the cutscenes leading to Skie's death and the accusations towards the PC is the cutscene where the Hooded Man makes the PC believe they killed Skie. At the end of this scene, when the Flaming Fist accuses the PC of being a murderer, all NPCs come into the room and some of them comment on what happened. Up to that point, all NPC of the group are handled by the cutscenes directly (bdcut60a.bcs and bdcut60b.bcs) and no further patching is needed, unless you want your NPC to participate even if they are not in the group.</p> 
 	  <p>We look at Biff being part of the group now. As already said, some NPCs give a comment on the murder scene. Actually, all of the NPCs have a comment, but it is scripted so there is a 50% chance of each whether they comment or not.</p> 
 	  <p>Also, there is two different possible comments with regard to whether the NPCs believe in the PC's guilt or innocence, depending on the PC's reputation. Of course, for your own NPC, you could trigger positive or negative reactions depending on what you like (romance / friendship status, custom count of good deeds, etc.) if you do not want to restrict it to reputation alone.</p>
-	  <p>The comments are handled in <strong>bd4100.bcs</strong></p> where we add the following xxbd4100.baf for Biff:
+	  <p>The comments are handled in <strong>bd4100.bcs</strong> where we add the following xxbd4100.baf for Biff:</p>
       <pre class="code">
 /* xxbd4100.baf. CHARNAME is accused of murder. Biff comments */
 
@@ -175,7 +175,8 @@ THEN
 	RESPONSE #100
 		SetGlobal("xxBiff_SoDMurderAccusations","bd4100",1)
 		SetGlobalTimer("bd_mdd1352_ot_timer","bd4100",ONE_ROUND) //set the timer according to how long the comment is. ONE_ROUND equals ONE_MINUTE = 6 seconds realtime. You can put in the amount of realtime seconds as a number directly.
-		DisplayStringHead("xxBiff",~Well, &lt;CHARNAME&gt; might have not been the friendliest, but I know the script so... Nope, I don't think &lt;PRO_HESHE&gt; did it.~)  
+		DisplayStringHead("xxBiff",~Well, &lt;CHARNAME&gt; might have not been the friendliest, but I know the script so... Nope, I don't think &lt;PRO_HESHE&gt; did it.~)   
+		Continue()
 END
 
 /* second script block: Biff makes a comment in case of higher reputation */
@@ -191,7 +192,8 @@ THEN
 	RESPONSE #100
 		SetGlobal("xxBiff_SoDMurderAccusations","bd4100",1)
 		SetGlobalTimer("bd_mdd1352_ot_timer","bd4100",ONE_ROUND)
-		DisplayStringHead("xxBiff",~Whoa, &lt;CHARNAME&gt;'s such a nice fellow. (And I know the script so... Nope, I don't think &lt;PRO_HESHE&gt; did it.)~)  
+		DisplayStringHead("xxBiff",~Whoa, &lt;CHARNAME&gt;'s such a nice fellow. (And I know the script so... Nope, I don't think &lt;PRO_HESHE&gt; did it.)~)   
+		Continue()
 END
 
 </pre>
@@ -219,9 +221,9 @@ IF
 THEN
 	RESPONSE #100
 		CutSceneId("xxBiff")
-		ActionOverride("xxBiff",LeaveParty())
 		SetGlobal("xxBiff_SoDparty_epilogue","GLOBAL",1) //This will make Biff appear after the PC was released from prison.
 		SetGlobal("xxBiff_Kickout","GLOBAL",1) //this is for inner mod detection, for example if the game's a continuous EET game. Put here whatever you need for your own mod.
+		ActionOverride("xxBiff",LeaveParty())
 		ActionOverride("xxBiff",DestroyAllFragileEquipment(ADAMANTINE)) //this destroys all drow equipment, just in case the NPC had any.
 END
 </pre>
@@ -235,11 +237,17 @@ EXTEND_TOP ~bdcut61.bcs~ ~%MOD_FOLDER%/baf/xxbdcut61.baf~
 
 
       <h2><a name="toc_2b">3. Biff visits the PC in Prison</a></h2>
-      <p>While in prison, the PC gets some visits depending on romance status of NPCs. The order of visits is the following: First Corwin, if Corwin is not romance interest, then the romance interest will come to visit next, then the "Hooded Man", and finally whoever lets the PC escape (depending on which ending the player gets).</p>
-	  <p>The example below will show how to let Biff visit the PC in prison as the first NPC. The area in question is bd0104.are and the script triggering the visits is <strong>bd0104.bcs</strong>.</p> 
-	  <p>This is what we patch to bd0104.bcs:</p>
+      <p>While in prison, the PC gets some visits depending on romance status of NPCs. The order of visits is the following: First Corwin who will come always, if Corwin is no romance interest then the romance interest will come to visit next, then the "Hooded Man", and finally whoever lets the PC escape (depending on which ending the player gets).</p>
+	  <p>The example below will show how to let Biff visit the PC in prison for two cases:</p>	  
+	  <ol>
+        <li>As the first NPC, in case your NPC should come in addition to all other visitors.</li>
+        <li>As the PC's love interest (after Corwin so the original order is preserved). This is coded so it should work for more than one love interest in case of a "multi romance" tweak.</li>
+	  </ol>
+	  <p>The area in question is bd0104.are and the script triggering the visits is <strong>bd0104.bcs</strong>. This is what we patch to bd0104.bcs:</p>
       <pre class="code">
-/* xxbd0104.baf : Biff visits the PC in prison (as first NPC) */
+/* xxbd0104.baf : Biff visits the PC in prison */
+
+/* As the first NPC, in case your NPC should come in addition to all other visitors. */
 IF
 	Global("chapter","global",13)
 	!GlobalTimerNotExpired("bd_jail_visitors_timer","bd0104")
@@ -250,12 +258,32 @@ IF
 	!Dead("xxBiff")  
 THEN
 	RESPONSE #100
-		SetGlobal("xxBiff_jail_visitors","bd0104",1)
-		SetGlobalTimer("bd_jail_visitors_timer","bd0104",FIVE_ROUNDS)
-		SetGlobalTimer("bd_jail_visitors2_timer","bd0104",TEN_ROUNDS)
+		SetGlobal("xxBiff_jail_visitors","bd0104",1) //trigger variable for Bifff's dialogue
+		SetGlobalTimer("bd_jail_visitors_timer","bd0104",FIVE_ROUNDS) //timer  needed so some other stuff will wait
+		SetGlobalTimer("bd_jail_visitors2_timer","bd0104",TEN_ROUNDS) //timer  needed so some other stuff will wait
 		MoveGlobal("bd0104","xxBiff",[720.620])  //coordinates true for all visiting NPCs
 		ActionOverride("xxBiff",ChangeAIScript("bdvisit",OVERRIDE)) //this script will handle the "NPC walks up to the PC's prison door and initiates dialogue"
+		Continue()
 END
+
+/* ## -- commented out - Biff doesn't have a romance. Enable this as appropriate
+/* As the PC's love interest (after Corwin so the original order is preserved). */
+IF
+	Global("chapter","global",13)
+	GlobalTimerExpired("bd_jail_visitors_timer","bd0104")  // Flaming Fist HQ
+	Global("bd_jail_visitors","bd0104",4)  //This calls romance interests if there are any
+	Global("xxBiff_sod_romanceactive","global",2) //your NPC's romance variable
+	!Dead("xxBiff")  
+THEN
+	RESPONSE #100
+		SetGlobal("xxBiff_jail_visitors","bd0104",1) //trigger variable for Bifff's dialogue
+		SetGlobal("bd_jail_visitors","bd0104",5)  // Flaming Fist HQ
+		SetGlobalTimer("bd_jail_visitors2_timer","bd0104",TEN_ROUNDS)  //timer  needed so some other stuff will wait
+		MoveGlobal("bd0104","xxBiff",[720.620])  //coordinates true for all visiting NPCs
+		ActionOverride("xxBiff",ChangeAIScript("bdvisit",OVERRIDE)) //this script will handle the "NPC walks up to the PC's prison door and initiates dialogue"
+		Continue()
+END
+## */
 	  </pre>
 	  <p>To patch xxbd0104.baf to bd0104.bcs, we need this line in the tp2 (note the EXTEND_TOP):</p>
       <pre class="code">
@@ -263,16 +291,20 @@ END
 EXTEND_TOP ~bd0104.bcs~ ~%MOD_FOLDER%/baf/xxbd0104.baf~
   EVALUATE_BUFFER
 </pre>
-     <p>The dialogue goes into a .d-file. Again, Biff is not in the group, so we use his kickout dialogue xxBiffsP.dlg:</p>
+     <p>Biff is not in the group, so we use his kickout dialogue xxBiffsP.dlg. The variable structure will work for either case (Biff being additional first visitor or love interest). The dialogue goes into a .d-file (in the tutorial mod package I put it into a general "sod_event_comments.d" which also contains other content from the other Tutorial Parts but you can put it in any other d-file as well):</p>
 	 <pre class="code">
 /* (T2) Biff visits PC in prison */
-
 APPEND xxBiffsP 
-
 IF WEIGHT #-1 //we make this higher weighted so it triggers instead of his valid kickout dialogue
 ~Global("xxBiff_jail_visitors","bd0104",1)~ THEN prison_visit
 SAY ~Hey there, &lt;CHARNAME&gt;. I know it sounds weird, but... you'll be fine, so hang in there, alright?~
+/* non-romance case */
 IF ~~ THEN DO ~SetGlobal("xxBiff_jail_visitors","bd0104",2) 
+SetGlobal("bd_visit_player","locals",1) //this will let Biff EscapeArea() via bdvisit.bcs
+~ EXIT
+/* romance case: */
+IF ~Global("bd_jail_visitors","bd0104",5)~ THEN DO ~SetGlobal("xxBiff_jail_visitors","bd0104",2) 
+SetGlobal("bd_jail_visitors","bd0104",4) //for romance case, we reset the variable to "4" so other romance interests can show - if present. If none is present, the script bd0104.bcs will move on.
 SetGlobal("bd_visit_player","locals",1) //this will let Biff EscapeArea() via bdvisit.bcs
 ~ EXIT
 END
@@ -288,8 +320,7 @@ END //APPEND
       </ol>
       <p>The according xxbd6200.baf looks like this:</p>
       <pre class="code">
-/* end of SoD. Biff will be at the meeting place */
-
+/* End of SoD. Biff will be at the meeting place */
 IF
 	Global("chapter","global",13)
 	Global("xxBiff_SoDEndMove","bd6200",0)
@@ -297,13 +328,13 @@ IF
 	!InPartyAllowDead("xxBiff")
 	Global("xxBiff_SoDparty_epilogue","GLOBAL",1) //this is the variable that was set in the xxbdcut61.baf
 THEN
-	RESPONSE #0
+	RESPONSE #100
 		SetGlobal("xxBiff_SoDEndMove","bd6200",1)
 		SetGlobal("bd_meet_canon_party","bd6200",1) //tells Imoen that there is someone waiting at the clearing (used in her greetings dialogue at the sewer exit)
 		MoveGlobal("bd6200","xxBiff",[xxx.yyy]) //chose coordinates near the meeting place: the clearing at the southeast. For example: Minsc is waiting at [1660.1120]
 		ActionOverride("xxBiff",SetSequence(SEQ_READY)) //from IESDP: This action instructs the active creature to perform the specified animation sequence. Values are from seq.ids.
 		ActionOverride("xxBiff",Face(NW)) //depending on where the NPC stands, they should face the north east
-		ActionOverride("xxBiff",SetGlobal("bd_joined","locals",0)) //we remember these from tutorial 1
+		ActionOverride("xxBiff",SetGlobal("bd_joined","locals",0)) //we remember these from Tutorial Part 1
 		ActionOverride("xxBiff",SetGlobal("bd_retreat","locals",0))
 		ActionOverride("xxBiff",SaveObjectLocation("LOCALS","bd_default_loc",Myself))
 		ReallyForceSpellDeadRES("bdrejuve","xxBiff")  // heals and removes spell effects
@@ -343,10 +374,12 @@ EXTEND_TOP ~bd6200.bcs~ ~%MOD_FOLDER%/baf/xxbd6200.baf~
       <pre class="code">
 /* PC escaped from the prison. All NPCs say a greeting */
 I_C_T3 BDIMOEN 99 xxBiff_SoDMurderComment 
+/* PC is believed to be the murderer */
 == xxBiffsP IF ~Global("bd_player_exiled","global",0)
 !Dead("xxBiff")
 InMyArea("xxBiff")
 !InParty("xxBiff")~ THEN ~Good you made it out. Sorry about all the blood.~
+/* PC is believed to be innocent */
 == xxBiffsP IF ~!Global("bd_player_exiled","global",0)
 !Dead("xxBiff")
 InMyArea("xxBiff")
@@ -356,13 +389,13 @@ END
 
 
       <h2><a name="toc_5">6. Biff should appear in the last area (abduction scene, bd6100.are)[DEPRECATED]</a></h2>
-	  <p class="info">This section is deprecated. I'll leave it in so anyone interested can try to make this work without having to search for the involved scripts anew. I do not recommend using this the way it is described here. Problems arising for my NPC were: the NPC does not walk across the clearing in bd6100.are but remains standing under the bushes; the NPC does not appear in Irenicus' Dungeon although the script block for their creation run; the NPC appears but still has all protection effects of the last kidnapping scene on them. One possibility to circumvent the last two issues could be to work with a "dummy NPC" that walks alongside the group. I decided to not let my NPC appear in the last kidnapping scene.</p>
-      <p>After the PC and all present NPCs start moving and the scene fades to black, the cutscene <strong>bdcut64x.bcs</strong> handles the rejoining of the canon NPCs (Imoen - first time she joins in SoD!, Minsc, Dynaheir, Jaheira, Khalid) before calling bdcut65.bcs which transfers and moves the group onto bd6100.are, the final abduction area. This takes into consideration whether there is enough empty slots for the NPCs (for e.g. multiplayer game with more than one protagonist), and also whether the canon NPCs are actually still alive and present.</p>
+	  <p class="info">This section is deprecated. I'll leave it in so anyone interested can try to make this work without having to search for the involved scripts anew. I do not recommend using this the way it is described here. Problems arising for my NPC were: the NPC does not walk across the clearing in bd6100.are but remains standing under the bushes; the NPC does not appear in Irenicus' Dungeon although the script block for their creation run; the NPC appears but still has all protection effects of the last kidnapping scene on them. One possibility to circumvent the last two issues could be to work with a "dummy NPC" that walks alongside the group. I decided to not let my NPC appear in the last kidnapping scene because I lost motivation to work with this scene any more. Also note: if your NPC takes a place of one of the 5 canon party members, it can happen that the problems described above might apply to Imoen, Jaheira, or Minsc after transition to Irenicus' Dungeon in EET.</p>
+      <p>After the PC and all present NPCs start moving and the scene fades to black, the cutscene <strong>bdcut64x.bcs</strong> handles the rejoining of the canon NPCs (Imoen - first time she joins in original SoD!, Minsc, Dynaheir, Jaheira, Khalid) before calling bdcut65.bcs which transfers and moves the group onto bd6100.are, the final abduction area. This takes into consideration whether there is enough empty slots for the NPCs (for e.g. multiplayer game with more than one protagonist), and also whether the canon NPCs are actually still alive and present.</p>
 	  <p>This means, that with all canon NPCs alive (Imoen will be alive no matter what, but the other four might not be alive any more and won't be present then), the group is full with 6 people, and there is no "room" for your NPC. If there is less, then there would be room, in principle. But for easier handling of our mod NPC, we will only move Biff to teh last area and let him walk at the PC's side. This way, we only have to consider one case.</p>
 	  <p>This is what we add to bdcut64x.bcs for Biff:</p>
       <pre class="code">
 /* xxbdcut64x.baf
-Biff will not join after PC escaped from prison (simplifies scripting) */
+Biff will not join after PC escaped from prison (simplifies scripting and prevents bugs for the default NPC crew in EET) */
 IF
 	Global("xxBiff_SoDEndMove","bd6200",1) //same as in xxbd6200.bcs 
 	InMyArea("xxBiff")
@@ -372,7 +405,7 @@ THEN
 	RESPONSE #100
 		CutSceneId(Player1)
 		SetGlobal("xxBiff_SoDEndMove","bd6200",2)
-		ActionOverride("xxBiff",LeaveAreaLUA("bd6100","",[xxx.yyy],SE)) //chose some coordinates beneath the trees northseast of the clearing 
+		ActionOverride("xxBiff",LeaveAreaLUA("bd6100","",[xxx.yyy],SE)) //chose some coordinates beneath the trees northeast of the clearing 
 		SmallWait(10)
 		Continue()
 END
@@ -387,16 +420,19 @@ EXTEND_TOP ~bdcut64x.bcs~ ~%MOD_FOLDER%/baf/xxbdcut64x.baf~
 </pre>
 
       <h2><a name="toc_6">7. Biff should move with the group in the last area (abduction scene, bd6100.are)[DEPRECATED]</a></h2>
-	  <p class="info">This section is deprecated. I'll leave it in so anyone interested can try to make this work without having to search for the involved scripts anew. I do not recommend using this the way it is described here. Problems arising for my NPC were: the NPC does not walk across the clearing in bd6100.are but remains standing under the bushes; the NPC does not appear in Irenicus' Dungeon although the script block for their creation run; the NPC appears but still has all protection effects of the last kidnapping scene on them. One possibility to circumvent the last two issues could be to work with a "dummy NPC" that walks alongside the group. I decided to not let my NPC appear in the last kidnapping scene.</p>
+	  <p class="info">This section is deprecated. I'll leave it in so anyone interested can try to make this work without having to search for the involved scripts anew. I do not recommend using this the way it is described here. Problems arising for my NPC were: the NPC does not walk across the clearing in bd6100.are but remains standing under the bushes; the NPC does not appear in Irenicus' Dungeon although the script block for their creation run; the NPC appears but still has all protection effects of the last kidnapping scene on them. One possibility to circumvent the last two issues could be to work with a "dummy NPC" that walks alongside the group. I decided to not let my NPC appear in the last kidnapping scene because I lost motivation to work with this scene any more. Also note: if your NPC takes a place of one of the 5 canon party members, it can happen that the problems described above might apply to Imoen, Jaheira, or Minsc after transition to Irenicus' Dungeon in EET.</p>
       <p>In the last SoD area bd6100.are, the group emerges from beneath the trees and moves out into the clearing before the abduction happens. Biff should move, too, so we need to patch the cutscene bdcut65.bcs.</p>
-	  <p>This is what we add to the tp2 to patch bdcut65.bcs:</p>
+	  <p>This is what we add to the tp2 into the ALWAYS block:</p>
       <pre class="code">
 	  
 //put this into the ALWAYS block of cour tp2  
-INCLUDE ~ACBre/lib/extra_regexp_vars.tph~ //this makes sure REPLACE_TEXTUALLY finds the right match to patch
+INCLUDE ~%MOD_FOLDER%/lib/extra_regexp_vars.tph~ //this makes sure REPLACE_TEXTUALLY finds the right match to patch
 OUTER_SPRINT newline ~%WNL%%LNL%%MNL%%TAB% ~
 
+</pre>
 
+	  <p>This is what we add to the tp2 to patch bdcut65.bcs:</p>
+      <pre class="code">
 /* Biff should move with the group in the last area (abduction scene, bd6100.are) */
 COPY_EXISTING ~bdcut65.bcs~ ~override~
   DECOMPILE_AND_PATCH BEGIN
@@ -447,6 +483,7 @@ END
       <p>To add a reply about Biff to Imoen's dialogue, we patch it to the states bdimoen 104 (for the "not guilty" ending i.e. Global("bd_player_exiled","global",1)), and bdimoen 109 (for the "guilty" ending i.e. Global("bd_player_exiled","global",0)).</p>
       <p>We put this inside a d-file:</p>
       <pre class="code">
+/* PC can ask Imoen about Biff in last meeting if Biff will not come along */
 EXTEND_BOTTOM bdimoen 104
   + ~Global("xxBiff_SoDparty_epilogue","GLOBAL",1)~ + ~I was expecting to see Biff amongst you.~ + ask_about_biff
 END
@@ -463,7 +500,7 @@ END
 
  
 	  
-      <h2><a name="toc_12">Credits, Used Tools, and Helpful Links</a></h2>
+      <h2><a name="toc_12">9. Credits, Used Tools, and Helpful Links</a></h2>
 	  <p>Thank you to Argent77 for the html template!</p>
 	  <p>Used Tools:</p
       <p><a href="https://github.com/Argent77/NearInfinity/releases/latest">Near Infinity</a></p>
@@ -479,10 +516,18 @@ END
       <p><a href="http://forums.blackwyrmlair.net/index.php?showtopic=113">Prefix Reservation at Black Wyrm Lair Forums</a></p>
 	  
 	  
-      <h2><a name="toc_13">Version History</a></h2>
+      <h2><a name="toc_13">10. Version History</a></h2>
+          <p>Version 7:</p>
+          <ul>
+            <li>Tutorial was revised and updated with new content. This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
+			<li>Chapter 3 "Biff visits the PC in Prison" expanded in case the NPC should visit as a love interest after Corwin.</li>
+            <li>Added Continue() to script additions via EXTEND_TOP except cutscenes.</li>
+            <li>Revised the order of actions in some script blocks.</li>
+			<li>Corrected typos and oversights.</li>
+          </ul>
           <p>Version 6:</p>
           <ul>
-            <li>added paragraph "8. If Biff should NOT be present after the PC escapes the prison"</li>
+            <li>Added chapter 8 "If Biff should NOT be present after the PC escapes the prison"</li>
           </ul>
           <p>Version 5:</p>
           <ul>
