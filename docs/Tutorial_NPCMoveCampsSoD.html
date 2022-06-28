@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 1: Automatic Transition of NPCs into SoD and between Camps in SoD</h1>
 	  
-	<p>Version 8, by jastey</p>
+	<p>Version 9, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -877,6 +877,7 @@ IF ~GlobalGT("bd_joined","locals",0)~ THEN BEGIN kickout_5
   SAY ~You want me to go?~
   + ~GlobalGT("bd_npc_camp_chapter","global",1)
      GlobalLT("bd_npc_camp_chapter","global",5)
+/* Note: The following OR() structure "needs to be in exactly that order - Range() first, NTO(ISOverMe()) next, - and not followed by any further script syntax, otherwise the game will fail to evaluate the trigger if ff_camp is not present in current area." - Ardanis */
      OR(2)
        !Range("ff_camp",999)
        NextTriggerObject("ff_camp")
@@ -922,6 +923,10 @@ COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxBiffsP_kickoutdialogue.d~
 	  
 	  
       <h2><a name="toc_14">16. Version History</a></h2>
+          <p>Version 9:</p>
+          <ul>
+            <li>Added note to paragraph "Biff's SoD kickout dialogue with the needed local variables" regarding the importance of trigger order for NextTriggerObject(!IsOverMe()) if the object might not be in the area, by Ardanis.</li>
+          </ul>
           <p>Version 8:</p>
           <ul>
             <li>Tutorial was revised and updated with new content. This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
