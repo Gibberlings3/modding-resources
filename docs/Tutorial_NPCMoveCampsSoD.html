@@ -152,7 +152,7 @@
           <td>Biff's scriptname (death variable)</td>
         </tr>
         <tr>
-          <td>xxBiffs.dlg</td>
+          <td>xxBiffsG.dlg</td>
           <td>Biff's greeting dialogue in SoD</td>
         </tr>
         <tr>
@@ -174,15 +174,15 @@
         </tr>
         <tr>
           <td>[x1.y1]</td>
-          <td>area coordinates for Biff's camp spot in bd1000.are, used in xxbd1000.baf and xxbdparty.baf</td>
+          <td>area coordinates for Biff's camp spot in bd1000.are, used in bd1000_patch.baf and bdparty_patch.baf</td>
         </tr>
         <tr>
           <td>[x2.y2]</td>
-          <td>area coordinates for Biff's camp spot in bd7100.are, used in xxbd7100.baf and xxbdparty.baf</td>
+          <td>area coordinates for Biff's camp spot in bd7100.are, used in bd7100_patch.baf and bdparty_patch.baf</td>
         </tr>
         <tr>
           <td>[x3.y3]</td>
-          <td>area coordinates for Biff's camp spot in bd3000.are, used in xxbd3000.baf and xxbdparty.baf</td>
+          <td>area coordinates for Biff's camp spot in bd3000.are, used in bd3000_patch.baf and bdparty_patch.baf</td>
         </tr>
       </table>
 	  
@@ -266,9 +266,9 @@ END
       <p>But Biff should not just remain in the group after the transition but behave like a "real" NPC, so we need to add script blocks for him to bd0103.bcs.</p>
       <p>The patching to bd0103.bcs to remove Biff has to be added via EXTEND_TOP, since bd0103.bcs also triggers the cutscene with Imoen approaching the PC – patching at the bottom would be too late in the game. This means that the removal of the NPCs' BACKPACK in bd0103.bcs has to be added for Biff individually, as well.</p>
       <p class="info">For patching to scripts with EXTEND_TOP, make sure you only add script blocks that contain a Continue(), otherwise OnCreation() triggers in the script might get blocked. This is especially important for area scripts. Even if there is none in the original game, it could have been added by another mod.</p>
-      <p>The xxbd0103.baf looks like this:</p>
+      <p>The bd0103_patch.baf looks like this:</p>
       <pre class="code">
-/* xxbd0103.baf:
+/* bd0103_patch.baf:
 Biff will leave the group after clearing Korlasz' Crypt */
 IF
   OR(2)
@@ -291,7 +291,7 @@ END
       <p>In the tp2, this line specifies the patching to bd0103.bcs (note the EXTEND_TOP):</p>
       <pre class="code">
 /* after Korlasz is defeated: PC is moved to Ducal Palace. Joined NPCs leave */
-EXTEND_TOP ~bd0103.bcs~ ~%MOD_FOLDER%/baf/xxbd0103.baf~
+EXTEND_TOP ~bd0103.bcs~ ~%MOD_FOLDER%/baf/bd0103_patch.baf~
   EVALUATE_BUFFER
 </pre>
 
@@ -299,22 +299,22 @@ EXTEND_TOP ~bd0103.bcs~ ~%MOD_FOLDER%/baf/xxbd0103.baf~
       <p>Now, your NPC should be recruitable somewhere inside BG city. As an example, Biff will be waiting in front of the Ducal Palace (<strong>bd0010.are</strong>) where the PC can meet him after leaving the palace for the first time.</p>
       <p>This would also be the first meeting point for players who started a new SoD game. Unless, of course, you want your NPC to start in Korlasz' Crypt for a new game also, then you'll have to add them to bd0130.bcs or bd0120.bcs, instead.</p>
       <p>Open Near Infinity and look at the bd0010.are (open the graphical view). Chose a good spot and note down the coordinates that NI shows at the right bottom side. Let's call them [x0.y0] for now.</p>
-      <p>Spawning Biff will be done with xxbd0010.baf which needs to be patched to <strong>bd0010.bcs</strong>. Note that we need two script blocks: one in case it's a new SoD game, and one in case Biff was already in the party (because we want the player to have him back the way he left in BG1 or Korlasz' Crypt):</p>
+      <p>Spawning Biff will be done with bd0010_patch.baf which needs to be patched to <strong>bd0010.bcs</strong>. Note that we need two script blocks: one in case it's a new SoD game, and one in case Biff was already in the party (because we want the player to have him back the way he left in BG1 or Korlasz' Crypt):</p>
       <pre class="code">
-/* xxbd0010.baf
+/* bd0010_patch.baf
 
 Biff will be waiting in front of the Ducal Palace */
 /* new SoD game */
 IF
 /* We consider two possibilities for detection whether Biff already existed. Chose what suits you best here. You could also chose e.g. Global("SOD_fromimport","global",0) for a new SoD game */
   !BeenInParty("xxBiff") //this variable is set automatically if Biff was in Party before. 
-  Global("xxBiffSpawnBG1","GLOBAL",0) //Biff was not present in BG1 - from your BG1 potion of your NPC mod
-  Global("xxBiffSpawn","GLOBAL",0) //spawn variable for SoD
+  Global("xxBiff_SpawnBG1","GLOBAL",0) //Biff was not present in BG1 - from your BG1 potion of your NPC mod
+  Global("xxBiff_Spawn","GLOBAL",0) //spawn variable for SoD
   Global("xxBiff_MoveCamp","MYAREA",0) //so spawning here happens only once
 THEN
   RESPONSE #100
     SetGlobal("xxBiff_MoveCamp","MYAREA",1)
-    SetGlobal("xxBiffSpawn","GLOBAL",1)
+    SetGlobal("xxBiff_Spawn","GLOBAL",1)
     CreateCreature("xxBiff",[x0.y0],S)  //open area in NI and chose coordinates and face direction. I put Biff right behind Ryphus.
     ActionOverride("xxBiff",MakeGlobalOverride())
     ChangeSpecifics("xxBiff",ALLIES)
@@ -323,22 +323,22 @@ THEN
     ActionOverride("xxBiff",ChangeAIScript("",RACE))
     ActionOverride("xxBiff",ChangeAIScript("",GENERAL))
     ActionOverride("xxBiff",ChangeAIScript("",DEFAULT))
-    ActionOverride("xxBiff",SetDialog("xxBiffs")  //greeting dialogue in SoD
+    ActionOverride("xxBiff",SetDialog("xxBiffsG")  //greeting dialogue in SoD
 END
 
 /* 2nd script block if Biff was in party before */
 IF
   !Dead("xxBiff")
   !InPartyAllowDead("xxBiff")
-  Global("xxBiffSpawn","GLOBAL",0) //SoD spawn variable
+  Global("xxBiff_Spawn","GLOBAL",0) //SoD spawn variable
   OR(2) //we consider two possibilities for detection whether Biff already existed. Chose what suits you best here.
 	BeenInParty("xxBiff") //this variable is set automatically if Biff was in Party in BG1 or SoD. 
-	GlobalGT("xxBiffSpawnBG1","GLOBAL",0) //Biff was present in BG1 - from your BG1 potion of your NPC mod
+	GlobalGT("xxBiff_SpawnBG1","GLOBAL",0) //Biff was present in BG1 - from your BG1 potion of your NPC mod
   Global("xxBiff_MoveCamp","MYAREA",0)  //so spawning here happens only once
 THEN
   RESPONSE #100
     SetGlobal("xxBiff_MoveCamp","MYAREA",1)
-    SetGlobal("xxBiffSpawn","GLOBAL",1) //we set this so we can check for it in bd0101.bcs
+    SetGlobal("xxBiff_Spawn","GLOBAL",1) //we set this so we can check for it in bd0101.bcs
     MoveGlobal("bd0010","xxBiff",[x0.y0])
     ActionOverride("xxBiff",Face(S))    //or any other direction depending on the coordinates
     ApplySpellRES("bdrejuve","xxBiff")  //completely heals and removes all spell effects
@@ -352,14 +352,14 @@ THEN
     ActionOverride("xxBiff",ChangeAIScript("",RACE))
     ActionOverride("xxBiff",ChangeAIScript("",GENERAL))
     ActionOverride("xxBiff",ChangeAIScript("",DEFAULT))
-    ActionOverride("xxBiff",SetDialog("xxBiffs")  //greeting dialogue in SoD
+    ActionOverride("xxBiff",SetDialog("xxBiffsG")  //greeting dialogue in SoD
 END
 </pre>
 
-      <p>And to patch bd0010.bcs with our xxbd0010.baf, we need this line in the tp2:</p>
+      <p>And to patch bd0010.bcs with our bd0010_patch.baf, we need this line in the tp2:</p>
       <pre class="code">
 /* let Biff reappear in front of the Duchal Palace */
-EXTEND_BOTTOM ~bd0010.bcs~ ~%MOD_FOLDER%/baf/xxbd0010.baf~ EVALUATE_BUFFER
+EXTEND_BOTTOM ~bd0010.bcs~ ~%MOD_FOLDER%/baf/bd0010_patch.baf~ EVALUATE_BUFFER
 </pre>
       <p>OK, so now he is waiting in front of the Palace. But what if the PC doesn't take him along now but tells him to wait? Then Biff needs to move while the campaign progresses.</p>
 
@@ -368,14 +368,14 @@ EXTEND_BOTTOM ~bd0010.bcs~ ~%MOD_FOLDER%/baf/xxbd0010.baf~ EVALUATE_BUFFER
       <p>Once the PC decides to move out against the Crusade, the area outside in front of the Ducal Palace is no longer bd0010.are, but <strong>bd0101.are</strong>. We want to meet up Biff here so he should be here, too. Note: The PC can also leave for the Crusaders without going into the city to recruit NPCs, they will be available later nontheless. So will be Biff!</p>
       <p>So, we have two possible cases here from a technical point of view for spawning him in bd0101.are:</p>
       <ol>
-        <li>Global("xxBiffSpawn","GLOBAL",0) is still at 0 because the player did not leave the palace to look for companions but went straight to leaving BG city with the Flaming Fist forces, but Biff was not in the game before - needs to be spawned anew.</li>
-        <li>Global("xxBiffSpawn","GLOBAL",0) is still at 0 because the player did not leave the palace to look for compagnions but went straight to leaving BG city with the Flaming Fist forces, and Biff was already in party or existed in BG1 - needs to be moved to bd0101.are, not spawned anew.</li>
-        <li>Global("xxBiffSpawn","GLOBAL",1) is at 1 meaning no matter whether Biff was present in BG1 or not, he was already spawned in front of the palace in his original SoD meeting point (we chose bd0010.are) - needs to be moved to bd0101.are, not spawned anew.</li>
+        <li>Global("xxBiff_Spawn","GLOBAL",0) is still at 0 because the player did not leave the palace to look for companions but went straight to leaving BG city with the Flaming Fist forces, but Biff was not in the game before - needs to be spawned anew.</li>
+        <li>Global("xxBiff_Spawn","GLOBAL",0) is still at 0 because the player did not leave the palace to look for compagnions but went straight to leaving BG city with the Flaming Fist forces, and Biff was already in party or existed in BG1 - needs to be moved to bd0101.are, not spawned anew.</li>
+        <li>Global("xxBiff_Spawn","GLOBAL",1) is at 1 meaning no matter whether Biff was present in BG1 or not, he was already spawned in front of the palace in his original SoD meeting point (we chose bd0010.are) - needs to be moved to bd0101.are, not spawned anew.</li>
       </ol>
       <p>Points 2 and 3 can be handled in one spawn script block in our example.</p>
-      <p>The according xxbd0101.baf which needs to be patched to <strong>bd0101.bcs</strong>:</p>
+      <p>The according bd0101_patch.baf which needs to be patched to <strong>bd0101.bcs</strong>:</p>
       <pre class="code">
-/* (T1) xxbd0101.baf // Ducal Palace, Leaving BG */
+/* (T1) bd0101_patch.baf // Ducal Palace, Leaving BG */
 
 /* Close the spawning/moving variable in case Biff is already in party */
 IF
@@ -389,19 +389,19 @@ THEN
     Continue()
 END
 
-/* 1. Biff needs to be spawned anew: Global("xxBiffSpawn","GLOBAL",0) is still at 0 because the player did not leave the palace to look for companions but went straight to leaving BG city with the Flaming Fist forces, plus Biff was not in the game before */
+/* 1. Biff needs to be spawned anew: Global("xxBiff_Spawn","GLOBAL",0) is still at 0 because the player did not leave the palace to look for companions but went straight to leaving BG city with the Flaming Fist forces, plus Biff was not in the game before */
 IF
   !Dead("xxBiff")
   !InPartyAllowDead("xxBiff")
   !BeenInParty("xxBiff") //Biff was never in party
-  Global("xxBiffSpawnBG1","GLOBAL",0) //Biff wasn't spawned in BG1
-  Global("xxBiffSpawn","GLOBAL",0) //Biff wasn't spawned in SoD before
+  Global("xxBiff_SpawnBG1","GLOBAL",0) //Biff wasn't spawned in BG1
+  Global("xxBiff_Spawn","GLOBAL",0) //Biff wasn't spawned in SoD before
   Global("xxBiff_MoveCamp","MYAREA",0) //so it happens only once in this area
 THEN
   RESPONSE #100
     SetGlobal("xxBiff_MoveCamp","MYAREA",1)
-    SetGlobal("xxBiffSpawn","GLOBAL",1) //Biff was spawned in SoD
-    CreateCreature("xxBiff",[x0.y0],S)  //for Biff, these are same coordinates as in xxbd0010.baf since he was in front of the Palace before, too
+    SetGlobal("xxBiff_Spawn","GLOBAL",1) //Biff was spawned in SoD
+    CreateCreature("xxBiff",[x0.y0],S)  //for Biff, these are same coordinates as in bd0010_patch.baf since he was in front of the Palace before, too
     ActionOverride("xxBiff",MakeGlobalOverride())
     ChangeSpecifics("xxBiff",ALLIES)
     ActionOverride("xxBiff",ChangeAIScript("xxBiffs",OVERRIDE)) //Biff's SoD override script
@@ -409,7 +409,7 @@ THEN
     ActionOverride("xxBiff",ChangeAIScript("BDSHOUT",RACE))
     ActionOverride("xxBiff",ChangeAIScript("BDFIGH01",GENERAL))  //Biff's a fighter so he gets a fighter script. Have a look at bdparty.bcs to see what other scripts are available for the different classes.
     ActionOverride("xxBiff",ChangeAIScript("",DEFAULT))
-    ActionOverride("xxBiff",SetDialog("xxBiffs")  //greeting dialogue in SoD
+    ActionOverride("xxBiff",SetDialog("xxBiffsG")  //greeting dialogue in SoD
 END
 
 /* 2+3: Biff needs to be moved here: he was either in party before (e.g. as a BG:EE NPC or in SoD beginning) OR he was spawned in SoD before */
@@ -418,13 +418,13 @@ IF
   !InPartyAllowDead("xxBiff")
   OR(3) //One of the 3 following conditions needs to be true
 	BeenInParty("xxBiff") //this is true if Biff was in party before
-	GlobalGT("xxBiffSpawnBG1","GLOBAL",0) //Biff was already spawned in BG1
-	Global("xxBiffSpawn","GLOBAL",1) //this is true if he was already spawned in bd0010.are
+	GlobalGT("xxBiff_SpawnBG1","GLOBAL",0) //Biff was already spawned in BG1
+	Global("xxBiff_Spawn","GLOBAL",1) //this is true if he was already spawned in bd0010.are
   Global("xxBiff_MoveCamp","MYAREA",0)  //so this happens only once in this area
 THEN
   RESPONSE #100
     SetGlobal("xxBiff_MoveCamp","MYAREA",1)
-    SetGlobal("xxBiffSpawn","GLOBAL",1) //Biff was spawned in SoD
+    SetGlobal("xxBiff_Spawn","GLOBAL",1) //Biff was spawned in SoD
     MoveGlobal("bd0101","xxBiff",[x0.y0])
     ActionOverride("xxBiff",Face(S))    //or any other direction depending on the coordinates
     ApplySpellRES("bdrejuve","xxBiff")  //completely heals and removes all spell effects
@@ -438,26 +438,27 @@ THEN
     ActionOverride("xxBiff",ChangeAIScript("BDSHOUT",RACE))
     ActionOverride("xxBiff",ChangeAIScript("BDFIGH01",GENERAL)) //Biff's a fighter so he gets a fighter script. Have a look at bdparty.bcs to see what other scripts are available for the different classes.
     ActionOverride("xxBiff",ChangeAIScript("",DEFAULT))
-    ActionOverride("xxBiff",SetDialog("xxBiffs")  //greeting dialogue in SoD
+    ActionOverride("xxBiff",SetDialog("xxBiffsG")  //greeting dialogue in SoD
 END
 </pre>
       <p>And for the tp2:</p>
       <pre class="code">
 /* Biff is in front of Ducal Palace if told to wait - or Player marches onto the battle without recruiting NPCs in Baldur' Gate: Biff will be in front of the palace, too */
-EXTEND_BOTTOM ~bd0101.bcs~ ~%MOD_FOLDER%/baf/xxbd0101.baf~
+EXTEND_BOTTOM ~bd0101.bcs~ ~%MOD_FOLDER%/baf/bd0101_patch.baf~
   EVALUATE_BUFFER
 </pre>
 
       <h2><a name="toc_5">6. Move Biff to first camp in Coast Way Crossing (bd1000.are)</a></h2>
       <p>So, PC is off to the first war camp, bd1000.are. Biff needs to come to the camp by himself in case he is not in party, i.e. he was left standing in front of the Ducal Palace but is supposed to follow.</p>
       <p>The first war camp is in Coast Way Crossing, <strong>bd1000.are</strong>. Good-aligned NPCs usually gather near Rayphus Goodtree who is standing at [600.3725]. Evil NPCs seem to gather to the left in front of the tents, but of course you can put your NPC wherever you want. (You could even let him walk around, like Glint does.) Open the area with Near Infinity and note down the coordinates you want your NPC to wait at, we will call them [x1.y1] for now.</p>
-      <p>Then we create the xxbd1000.baf with the spawn script block which needs to be patched to <strong>bd1000.bcs</strong>:</p>
+      <p>Then we create the bd1000_patch.baf with the spawn script block which needs to be patched to <strong>bd1000.bcs</strong>:</p>
       <pre class="code">
-/* xxbd1000.baf */
+/* bd1000_patch.baf */
 /* Biff moves to first war camp at Coast Way Crossing, bd1000.are */
 
 /* Move Biff here. He was already spawned at some point. */
 IF
+  Global("xxBiff_Spawn","GLOBAL",1) //Biff was spawned in SoD
   Global("xxBiff_MoveCamp","MYAREA",0) //so it happens only once in this area
   !Dead("xxBiff")
   !InPartyAllowDead("xxBiff")
@@ -484,7 +485,7 @@ END
       <p>And for the tp2 via EXTEND_TOP:</p>
       <pre class="code">
 /* Biff moves to war camp in bd1000.are */
-EXTEND_TOP ~bd1000.bcs~ ~%MOD_FOLDER%/baf/xxbd1000.baf~
+EXTEND_TOP ~bd1000.bcs~ ~%MOD_FOLDER%/baf/bd1000_patch.baf~
   EVALUATE_BUFFER
 </pre>
 <p>The "Move NPC to Camp" variable gets also set in case the NPC is in party. For this, the original game uses a script block inside the bd1000.bcs which is triggered by Global("bd_move_npcs","bd1000",0) which does not check whether the NPCs are in party but which is later than the "spawn NPCs" script blocks. We patch our NPC's variable here, accordingly, to prevent the spawn/move script blocks to interfere later.</p>
@@ -507,12 +508,13 @@ BUT_ONLY
 	</pre>
 
       <h2><a name="toc_6">7. Move Biff to 2<sup>nd</sup> camp in Troll Claw Woods (bd7100.are)</a></h2>
-      <p>The next camp is set in the Troll Claw Woods, <strong>bd7100.are</strong>. Search for fitting coordinates with Near Infinity, in this tutorial we will use the placeholder [x2.y2]. xxbd7100.baf will contain Biff's spawn script block that needs to be patched to <strong>bd7100.bcs</strong>:</p>
+      <p>The next camp is set in the Troll Claw Woods, <strong>bd7100.are</strong>. Search for fitting coordinates with Near Infinity, in this tutorial we will use the placeholder [x2.y2]. bd7100_patch.baf will contain Biff's spawn script block that needs to be patched to <strong>bd7100.bcs</strong>:</p>
       <pre class="code">
-/* xxbd7100.baf: */
+/* bd7100_patch.baf: */
 
 /* Move him here. He was already spawned before or exists from BG1 */
 IF
+  Global("xxBiff_Spawn","GLOBAL",1) //Biff was spawned in SoD
   Global("xxBiff_MoveCamp","MYAREA",0)
   !Dead("xxBiff")
   !InPartyAllowDead("xxBiff")
@@ -539,7 +541,7 @@ END
       <p>And for the tp2 via EXTEND_TOP:</p>
       <pre class="code">
 /* and the same for the next camp in bd7100.are: */
-EXTEND_TOP ~bd7100.bcs~ ~%MOD_FOLDER%/baf/xxbd7100.baf~
+EXTEND_TOP ~bd7100.bcs~ ~%MOD_FOLDER%/baf/bd7100_patch.baf~
   EVALUATE_BUFFER
 </pre>
 <p>The "Move NPC to Camp" variable gets also set in case the NPC is in party. For this, the original game uses a script block inside the bd7100.bcs which is triggered by Global("bd_move_npcs","bd7100",0). We need to patch our NPC's variable here, accordingly.</p>
@@ -563,13 +565,14 @@ BUT_ONLY
 
       <h2><a name="toc_7">8. Move Biff to the Coalition Camp in bd3000.are</a></h2>
       <p>The last camp the coalition moves to is the big Coalition Camp in <strong>bd3000.are</strong>. Again, Biff will follow in case he wasn't in the party upon transition. Look up bd3000.are in Near Infinity and note down the coordinates you want your PC to wait at, we will call them [x3.y3] for this tutorial.</p>
-      <p>xxbd3000.baf (which will be patched to <strong>bd3000.bcs</strong>) with Biff's spawn script inside the Coalition Camp:</p>
+      <p>bd3000_patch.baf (which will be patched to <strong>bd3000.bcs</strong>) with Biff's spawn script inside the Coalition Camp:</p>
       <pre class="code">
-/* xxbd3000.baf */
+/* bd3000_patch.baf */
 /* Moves Biff into the Coalition Camp if he was not in party */
 
 /* Move him here, he was already spawned before or exists from BG1
 IF
+  Global("xxBiff_Spawn","GLOBAL",1) //Biff was spawned in SoD
   Global("xxBiff_MoveCamp","MYAREA",0)
   !Dead("xxBiff")
   !InPartyAllowDead("xxBiff")
@@ -596,7 +599,7 @@ END
       <p>And for the tp2 via EXTEND_TOP:</p>
       <pre class="code">
 /* Last camp is in bd3000.are. In case Biff was never in party or kicked out to wait somewhere else, he will also be back in the (last) camp. */
-EXTEND_TOP ~bd3000.bcs~ ~%MOD_FOLDER%/baf/xxbd3000.baf~
+EXTEND_TOP ~bd3000.bcs~ ~%MOD_FOLDER%/baf/bd3000_patch.baf~
   EVALUATE_BUFFER
 </pre>
 <p>The "Move NPC to Camp" variable gets also set in case the NPC is in party. For this, the original game uses a script block inside the bd3000.bcs which is triggered by Global("bd_move_npcs","bd3000",0). We need to patch our NPC's variable here, accordingly.</p>
@@ -626,7 +629,7 @@ BUT_ONLY
 	  <strong>Global("xxBiff_MoveCamp","bd3000",1)</strong>.</p>
 	  <p>This is what we will patch to <strong>bdasc3.bcs</strong> via EXTEND_BOTTOM:</p>
 	 <pre class="code">  
-/* xxbdasc3.baf */
+/* bdasc3_patch.baf */
 /* Move NPC to entrance of the Allied Siege Camp (Crusade battle) */
 IF
 	Global("bd_battle","global",1)
@@ -645,7 +648,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Move NPC to entrance of the Allied Siege Camp (Crusade battle) */
-EXTEND_BOTTOM ~bdasc3.bcs~ ~%MOD_FOLDER%/baf/xxbdasc3.baf~
+EXTEND_BOTTOM ~bdasc3.bcs~ ~%MOD_FOLDER%/baf/bdasc3_patch.baf~
   EVALUATE_BUFFER
 	</pre>
 	<p>This is not all we need to make our NPC work as an original one, though. In the Tutorial Part 1, we moved our NPC here in case they were not in party and set a variable for this:</p> 
@@ -679,7 +682,7 @@ BUT_ONLY
       <p>We need the following addition to <strong>bdparty.bcs</strong> to make Biff move back to the camp on his own if kicked out somewhere else. Everything else is done by the script. The used variable Global("bd_npc_camp","locals",1) which makes Biff go back to the (current) camp is set by the kickout dialogue which will be discussed in <a href="#toc_12">Chapter 14: "Biff's SoD kickout dialogue with the needed local variables"</a>.</p>
 	  <p class="info">Please note: Trigger overrides for objects that may not exist in the area might bug out so that is one of the reasons it is integrated into an OR trigger here. In addition, TriggerOverride needs to be the last in a condition block, i.e. switching the !Range() and !TriggerOverride() in the OR(2) block would lead to the OR-trigger to fail. This is also the case for dialogue triggers.</p>
 	  <pre class="code">
-/* xxbdparty.baf:
+/* bdparty_patch.baf:
 Addition to bdparty.bcs to toggle moving back to the current camp if kicked out of party. */
 
 IF
@@ -691,11 +694,11 @@ IF
     !TriggerOverride("ff_camp",IsOverMe("xxBiff"))
 THEN
   RESPONSE #2
-    EscapeAreaMove("bd1000",x1,y1,N) //coordinates as used in xxbd1000.baf
+    EscapeAreaMove("bd1000",x1,y1,N) //coordinates as used in bd1000_patch.baf
   RESPONSE #3
-    EscapeAreaMove("bd7100",x2,y2,N) //coordinates as used in xxbd7100.baf
+    EscapeAreaMove("bd7100",x2,y2,N) //coordinates as used in bd7100_patch.baf
   RESPONSE #4
-    EscapeAreaMove("bd3000",x3,y3,N) //coordinates as used in xxbd3000.baf
+    EscapeAreaMove("bd3000",x3,y3,N) //coordinates as used in bd3000_patch.baf
 END
 
 /* this sets the "bd_npc_camp" variable to "2" as soon as Biff is in one of the camps again: bg1000.are, bg7100.are, bd3000.are – and will make bdparty.bcs set the correct fighting script etc. */
@@ -708,22 +711,22 @@ IF
 THEN
   RESPONSE #2
     SetGlobal("bd_npc_camp","locals",2)
-    SaveLocation("LOCALS","bd_default_loc",[x1.y1]) //coordinates as used in xxbd1000.baf
+    SaveLocation("LOCALS","bd_default_loc",[x1.y1]) //coordinates as used in bd1000_patch.baf
 	/* Note: here the "LOCALS" really need to be in capital letters. Ardanis: "Coordinate variables 
 are about the only place I know where case matters." */
   RESPONSE #3
     SetGlobal("bd_npc_camp","locals",2)
-    SaveLocation("LOCALS","bd_default_loc",[x2.y2]) //coordinates as used in xxbd7100.baf
+    SaveLocation("LOCALS","bd_default_loc",[x2.y2]) //coordinates as used in bd7100_patch.baf
   RESPONSE #4
     SetGlobal("bd_npc_camp","locals",2)
-    SaveLocation("LOCALS","bd_default_loc",[x3.y3]) //coordinates as used in xxbd3000.baf
+    SaveLocation("LOCALS","bd_default_loc",[x3.y3]) //coordinates as used in bd3000_patch.baf
     ChangeAIScript("bdasc3",CLASS)
 END
 </pre>
       <p>And for the tp2 (note the EXTEND_TOP, since the script blocks needs to be applied early, but we do not add "Continue()" here as it might leads to bugs for our mod - this is an exception):</p>
       <pre class="code">
 /* return to camp if kicked out */
-EXTEND_TOP ~bdparty.bcs~ ~%MOD_FOLDER%/baf/xxbdparty.baf~
+EXTEND_TOP ~bdparty.bcs~ ~%MOD_FOLDER%/baf/bdparty_patch.baf~
   EVALUATE_BUFFER
 </pre>
 
@@ -731,7 +734,7 @@ EXTEND_TOP ~bdparty.bcs~ ~%MOD_FOLDER%/baf/xxbdparty.baf~
       <p>We are not done with script additions yet. If kicked out in the hell dimension bd4700, the NPC does not move directly back to camp but is moved with the party in the appropriate cutscenes <strong>bdcut58.bcs</strong> and <strong>bdcut59b.bcs</strong>.</p>
       <p>This is the addition for Biff to bdcut58.bcs, where all characters are moved back to the portal in bd4400.are:</p>
       <pre class="code">
-/* xxbdcut58.baf
+/* bdcut58_patch.baf
 Biff was left standing in bd4700 - make sure he's coming to the last hell area, too */
 
 IF
@@ -748,7 +751,7 @@ END
       <p>And for the tp2 (note the EXTEND_TOP):</p>
       <pre class="code">
 /* Biff is kicked in hell dimension - teleport to last hell area bd4400.are */
-EXTEND_TOP ~bdcut58.bcs~ ~%MOD_FOLDER%/baf/xxbdcut58.baf~
+EXTEND_TOP ~bdcut58.bcs~ ~%MOD_FOLDER%/baf/bdcut58_patch.baf~
   EVALUATE_BUFFER
 </pre>
 
@@ -758,7 +761,7 @@ EXTEND_TOP ~bdcut58.bcs~ ~%MOD_FOLDER%/baf/xxbdcut58.baf~
       <p>For Global("xxBiff_kicked_bd4700","global",0), he can be wherever he wants to be - maybe in the room to the northeast since that's where most of the other NPCs seem to be waiting.</p>
       <p>This is what <strong>bdcut59b.bcs</strong> needs to be patched with for Biff:</p>
       <pre class="code">
-/* xxbdcut59b.baf */
+/* bdcut59b_patch.baf */
 
 /* Global("xxBiff_kicked_bd4700","global",1): Biff was left standing in hell dimension - make sure he's coming back to the castle, too */
 IF
@@ -787,17 +790,17 @@ END
       <p>And for the tp2 (note the EXTEND_TOP):</p>
       <pre class="code">
 /* Biff is kicked in hell dimension or was waiting elsewhere- teleport to Dragonspear Castle interior (bd4300.are) after PC returns from Avernus */
-EXTEND_TOP ~bdcut59b.bcs~ ~%MOD_FOLDER%/baf/xxbdcut59b.baf~
+EXTEND_TOP ~bdcut59b.bcs~ ~%MOD_FOLDER%/baf/bdcut59b_patch.baf~
   EVALUATE_BUFFER
 </pre>
-      <p>And that was all we needed for script patching for moving Biff until this point. Only thing missing are the according greeting dialogue xxBiffs.dlg and kickout dialogue xxBiffsP.dlg.</p>
+      <p>And that was all we needed for script patching for moving Biff until this point. Only thing missing are the according greeting dialogue xxBiffsG.dlg and kickout dialogue xxBiffsP.dlg.</p>
 
       <h2><a name="toc_11">13. Biff's SoD greetings dialogue with the needed local variables</a></h2>
       <p>For the SoD greeting's dialogue, the following would do.</p>
       <pre class="code">
 /* Biff's SoD greetings dialogue */
 
-BEGIN xxBiffs
+BEGIN xxBiffsG
 
 /* we need an always true "can I join you" block, because this dialogue might also trigger if Biff was left standing in BG city and is now waiting either in front of the Ducal Palace when the PC is leaving for the crusade, or even in one of the camps! */
 IF ~True()~ THEN sod_meeting
@@ -817,10 +820,10 @@ IF ~~ THEN sod_meeting_02
 END
 
 </pre>
-      <p>For the Tutorial mod package, I put this into a d-file called "xxBiffs_greetingsdialogue.d". This is the compilation in the tp2:</p>
+      <p>For the Tutorial mod package, I put this into a d-file called "greetingsdialogue.d". This is the compilation in the tp2:</p>
       <pre class="code">
 /* SoD greeting dialogue */
-COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxBiffs_greetingsdialogue.d~
+COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/greetingsdialogue.d~
 </pre>
 
       <h2><a name="toc_12">14. Biff's SoD kickout dialogue with the needed local variables</a></h2>
@@ -837,7 +840,7 @@ COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxBiffs_greetingsdialogue.d~
 BEGIN ~xxBiffsP~
 
 /* If kicked out in Avernus in bd4700.are
-This sets Global("xxBiff_kicked_bd4700","global",1) which is used in xxbdcut58.baf and xxbdcut59b.baf */
+This sets Global("xxBiff_kicked_bd4700","global",1) which is used in bdcut58_patch.baf and bdcut59b_patch.baf */
 /* Biff can't go home from here - so he will stay and say something brave. */
 IF ~AreaCheck("bd4700")
     GlobalLT("bd_plot","global",570)~ THEN BEGIN kickout_1
@@ -898,10 +901,10 @@ IF ~Global("bd_joined","locals",0)~ THEN join_again
   ++ ~Just remain here and await my return, all right?~ + kickout_3
 END
 </pre>
-      <p>For the Tutorial mod package, I put this into a d-file called "xxBiffsP_kickoutdialogue.d". This is the compilation in the tp2:</p>
+      <p>For the Tutorial mod package, I put this into a d-file called "kickoutdialogue.d". This is the compilation in the tp2:</p>
       <pre class="code">
 /* SoD kickout dialogue */
-COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxBiffsP_kickoutdialogue.d~
+COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/kickoutdialogue.d~
 </pre>
       <p>How to move etc. your NPC from this point on in the cutscenes at the end of SoD will be explained in Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD.</p>
 	  
@@ -925,7 +928,10 @@ COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxBiffsP_kickoutdialogue.d~
       <h2><a name="toc_14">16. Version History</a></h2>
           <p>Version 9:</p>
           <ul>
-            <li>Added note to paragraph "Biff's SoD kickout dialogue with the needed local variables" regarding the importance of trigger order for NextTriggerObject(!IsOverMe()) if the object might not be in the area, by Ardanis.</li>
+            <li>Greetings dialogue file name changed to "xxBiffsG" to distinguish it from the OVERRDE script.</li>
+            <li>All variables should start with the prefix "xxBiff_".</li>
+            <li>Optimized naming scheme of d and baf files for search and replace of names (if tutorial NPC mod template is used for other NPCs): This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
+            <li>Added note to paragraph "Biff's SoD kickout dialogue with the needed local variables" regarding the importance of trigger order for NextTriggerObject(!IsOverMe()) if the object might not be in the area.</li>
           </ul>
           <p>Version 8:</p>
           <ul>
@@ -940,9 +946,9 @@ COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxBiffsP_kickoutdialogue.d~
           </ul>
           <p>Version 6:</p>
           <ul>
-            <li>corrected script so Biff will not spawn double in front of Palace (in xxbd0101.baf)</li>
-            <li>changed variable from "bdxxxx" to "MYAREA" to make using the script templates easier (in xxbd0010.baf, xxbd0101.baf, xxbd1000.baf, xxbd3000.baf, xxbd7100.baf)</li>
-            <li>Added compatibility with mods that lets skip parts of SoD (xxbd1000.baf, xxbd3000.baf, xxbd7100.baf)</li>
+            <li>corrected script so Biff will not spawn double in front of Palace (in bd0101_patch.baf)</li>
+            <li>changed variable from "bdxxxx" to "MYAREA" to make using the script templates easier (in bd0010_patch.baf, bd0101_patch.baf, bd1000_patch.baf, bd3000_patch.baf, bd7100_patch.baf)</li>
+            <li>Added compatibility with mods that lets skip parts of SoD (bd1000_patch.baf, bd3000_patch.baf, bd7100_patch.baf)</li>
             <li>Moved the section "Make your NPC mod EET compatible" into Tutorial 3 ("Add Other General Relevant Things to Your NPC: XP Adjustment, Actions in Story Cutscenes, Commenting of Main Story Events, EET Compatibility").</li>
           </ul>
           <p>Version 5:</p>
@@ -952,13 +958,13 @@ COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxBiffsP_kickoutdialogue.d~
           <p>Version 4:</p>
           <ul>
             <li>corrected copy&paste errors where Minsc's death variable was inside scripts instead of Biff's</li>
-            <li>fixed oversight in xxbd0101.baf: in case Biff was taken into the group in BG city but then left standing before the last night before the coalition marches against the crusade, he wouldn't spawn in front of the Ducal Palace</li>
+            <li>fixed oversight in bd0101_patch.baf: in case Biff was taken into the group in BG city but then left standing before the last night before the coalition marches against the crusade, he wouldn't spawn in front of the Ducal Palace</li>
             <li>added new paragraph: "Add Biff to Corwin's list about companions in BG city"</li>
             <li>added new paragraph: "Make the Mod EET compatible"</li>
           </ul>
           <p>Version 3:</p>
           <ul>
-            <li>fixed missing greetings dialogue in case Biff joined the party in BG city and was left standing again but should join the party then before leaving for the crusade (greetings dialogue xxBiffs.d was changed)</li>
+            <li>fixed missing greetings dialogue in case Biff joined the party in BG city and was left standing again but should join the party then before leaving for the crusade (greetings dialogue xxBiffsG.d was changed)</li>
             <li>added new paragraph: "Transition into SoD: change Biff's OVERRIDE script to the SoD one for a continuous BG:EE-SoD game"</li>
             <li>moved sidenote about detecting SoD into here (from Tutorial no 4 "SoD Banter System for Your NPC")</li>
 			<li>changed tutorial's title to reflect it now also deals with the transition into SoD</li>
