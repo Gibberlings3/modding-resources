@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD</h1>
 	  
-	<p>Version 7, by jastey</p>
+	<p>Version 8, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -158,9 +158,9 @@
 	  <p>The first of the cutscenes leading to Skie's death and the accusations towards the PC is the cutscene where the Hooded Man makes the PC believe they killed Skie. At the end of this scene, when the Flaming Fist accuses the PC of being a murderer, all NPCs come into the room and some of them comment on what happened. Up to that point, all NPC of the group are handled by the cutscenes directly (bdcut60a.bcs and bdcut60b.bcs) and no further patching is needed, unless you want your NPC to participate even if they are not in the group.</p> 
 	  <p>We look at Biff being part of the group now. As already said, some NPCs give a comment on the murder scene. Actually, all of the NPCs have a comment, but it is scripted so there is a 50% chance of each whether they comment or not.</p> 
 	  <p>Also, there is two different possible comments with regard to whether the NPCs believe in the PC's guilt or innocence, depending on the PC's reputation. Of course, for your own NPC, you could trigger positive or negative reactions depending on what you like (romance / friendship status, custom count of good deeds, etc.) if you do not want to restrict it to reputation alone.</p>
-	  <p>The comments are handled in <strong>bd4100.bcs</strong> where we add the following xxbd4100.baf for Biff:</p>
+	  <p>The comments are handled in <strong>bd4100.bcs</strong> where we add the following bd4100_patch.baf for Biff:</p>
       <pre class="code">
-/* xxbd4100.baf. CHARNAME is accused of murder. Biff comments */
+/* bd4100_patch.baf. CHARNAME is accused of murder. Biff comments */
 
 /* first script block: Biff makes a comment in case of lower reputation */
 IF
@@ -201,7 +201,7 @@ END
       <p>In the tp2, this line specifies the patching to bd4100.bcs (note the EXTEND_TOP):</p>
       <pre class="code">
 /* Biff comments on murder accusation */
-EXTEND_TOP ~bd4100.bcs~ ~%MOD_FOLDER%/baf/xxbd4100.baf~
+EXTEND_TOP ~bd4100.bcs~ ~%MOD_FOLDER%/baf/bd4100_patch.baf~
 EVALUATE_BUFFER
 </pre>
 
@@ -213,9 +213,9 @@ EVALUATE_BUFFER
         <li>Is your NPC supposed to appear after the PC leaves the prison, either to say good-bye or because his story places him into Irenicus Dungeon? If not, you do not need to set the variable in the example below.</li>
         <li>Is your NPC a continuous NPC that can be met in BGII again? Then you might want to add any "NPC left the group" or "romance no longer open" variables you need to set, either because your NPC makes a reappearance in BGII and you want to make them continuous, or to account for the game being continued in BGII and you don't want the player to start the game with any misleading variables etc.</li>
       </ol>
-	  <p>We add the following for Biff (xxbdcut61.baf):</p>
+	  <p>We add the following for Biff (bdcut61_patch.baf):</p>
       <pre class="code">
-/*xxbdcut61.baf: Biff leaves the group after the murder accusations */
+/*bdcut61_patch.baf: Biff leaves the group after the murder accusations */
 IF
 	InParty("xxBiff")  
 THEN
@@ -228,10 +228,10 @@ THEN
 END
 </pre>
 
-      <p>And to patch bdcut61.bcs with our xxbdcut61.baf, we need this line in the tp2 (note the EXTEND_TOP):</p>
+      <p>And to patch bdcut61.bcs with our bdcut61_patch.baf, we need this line in the tp2 (note the EXTEND_TOP):</p>
       <pre class="code">
 /* after PC gets arrested for murder: Biff leaves party */
-EXTEND_TOP ~bdcut61.bcs~ ~%MOD_FOLDER%/baf/xxbdcut61.baf~
+EXTEND_TOP ~bdcut61.bcs~ ~%MOD_FOLDER%/baf/bdcut61_patch.baf~
   EVALUATE_BUFFER
 </pre>
 
@@ -245,7 +245,7 @@ EXTEND_TOP ~bdcut61.bcs~ ~%MOD_FOLDER%/baf/xxbdcut61.baf~
 	  </ol>
 	  <p>The area in question is bd0104.are and the script triggering the visits is <strong>bd0104.bcs</strong>. This is what we patch to bd0104.bcs:</p>
       <pre class="code">
-/* xxbd0104.baf : Biff visits the PC in prison */
+/* bd0104_patch.baf : Biff visits the PC in prison */
 
 /* As the first NPC, in case your NPC should come in addition to all other visitors. */
 IF
@@ -285,10 +285,10 @@ THEN
 END
 ## */
 	  </pre>
-	  <p>To patch xxbd0104.baf to bd0104.bcs, we need this line in the tp2 (note the EXTEND_TOP):</p>
+	  <p>To patch bd0104_patch.baf to bd0104.bcs, we need this line in the tp2 (note the EXTEND_TOP):</p>
       <pre class="code">
 /* Biff visits PC in Prison */
-EXTEND_TOP ~bd0104.bcs~ ~%MOD_FOLDER%/baf/xxbd0104.baf~
+EXTEND_TOP ~bd0104.bcs~ ~%MOD_FOLDER%/baf/bd0104_patch.baf~
   EVALUATE_BUFFER
 </pre>
      <p>Biff is not in the group, so we use his kickout dialogue xxBiffsP.dlg. The variable structure will work for either case (Biff being additional first visitor or love interest). The dialogue goes into a .d-file (in the tutorial mod package I put it into a general "sod_event_comments.d" which also contains other content from the other Tutorial Parts but you can put it in any other d-file as well):</p>
@@ -318,7 +318,7 @@ END //APPEND
         <li>The first one will put Biff to the meeting place outside the prison.</li>
         <li>The second one lets him move with the group when they start walking after the greetings.</li>
       </ol>
-      <p>The according xxbd6200.baf looks like this:</p>
+      <p>The according bd6200_patch.baf looks like this:</p>
       <pre class="code">
 /* End of SoD. Biff will be at the meeting place */
 IF
@@ -326,7 +326,7 @@ IF
 	Global("xxBiff_SoDEndMove","bd6200",0)
 	!Dead("xxBiff")  
 	!InPartyAllowDead("xxBiff")
-	Global("xxBiff_SoDparty_epilogue","GLOBAL",1) //this is the variable that was set in the xxbdcut61.baf
+	Global("xxBiff_SoDparty_epilogue","GLOBAL",1) //this is the variable that was set in the bdcut61_patch.baf
 THEN
 	RESPONSE #100
 		SetGlobal("xxBiff_SoDEndMove","bd6200",1)
@@ -364,7 +364,7 @@ END
       <p>And for the tp2 (note the EXTEND_TOP):</p>
       <pre class="code">
 /* Biff waits in front of the prison exit */
-EXTEND_TOP ~bd6200.bcs~ ~%MOD_FOLDER%/baf/xxbd6200.baf~
+EXTEND_TOP ~bd6200.bcs~ ~%MOD_FOLDER%/baf/bd6200_patch.baf~
   EVALUATE_BUFFER
 </pre>
 
@@ -394,10 +394,10 @@ END
 	  <p>This means, that with all canon NPCs alive (Imoen will be alive no matter what, but the other four might not be alive any more and won't be present then), the group is full with 6 people, and there is no "room" for your NPC. If there is less, then there would be room, in principle. But for easier handling of our mod NPC, we will only move Biff to teh last area and let him walk at the PC's side. This way, we only have to consider one case.</p>
 	  <p>This is what we add to bdcut64x.bcs for Biff:</p>
       <pre class="code">
-/* xxbdcut64x.baf
+/* bdcut64x_patch.baf
 Biff will not join after PC escaped from prison (simplifies scripting and prevents bugs for the default NPC crew in EET) */
 IF
-	Global("xxBiff_SoDEndMove","bd6200",1) //same as in xxbd6200.bcs 
+	Global("xxBiff_SoDEndMove","bd6200",1) //same as in bd6200.bcs 
 	InMyArea("xxBiff")
 	!Dead("xxBiff")  
 	!InParty("xxBiff")  
@@ -415,7 +415,7 @@ END
       <p>And for the tp2:</p>
       <pre class="code">
 /* (T2) Biff should appear in the last area (abduction scene, bd6100.are) */
-EXTEND_TOP ~bdcut64x.bcs~ ~%MOD_FOLDER%/baf/xxbdcut64x.baf~
+EXTEND_TOP ~bdcut64x.bcs~ ~%MOD_FOLDER%/baf/bdcut64x_patch.baf~
   EVALUATE_BUFFER
 </pre>
 
@@ -517,6 +517,10 @@ END
 	  
 	  
       <h2><a name="toc_13">10. Version History</a></h2>
+          <p>Version 8:</p>
+          <ul>
+            <li>Optimized naming scheme of d and baf files for search and replace of names (if tutorial NPC mod template is used for other NPCs): This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
+          </ul>
           <p>Version 7:</p>
           <ul>
             <li>Tutorial was revised and updated with new content. This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
