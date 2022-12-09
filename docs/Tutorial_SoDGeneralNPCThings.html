@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 3: Add Other General SoD Behavior to Your NPC: XP Adjustment, Actions in Story Cutscenes, Commenting of Main Story Events</h1>
 	  
-	<p>Version 3, by jastey.</p>
+	<p>Version 4, by jastey.</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -466,7 +466,7 @@ EXTEND_TOP ~bd0103.bcs~   ~%MOD_FOLDER%/baf/bd0103_commenting_et.baf~
 	
       <h2><a name="toc_5">5. Biff should comment on the coalition being ready to leave BG city</a></h2>
       <p>When the PC leaves the Ducal Palace, ready to march against the crusade, all NPCs and relevant coalition leaders (from BG) are gathered in front of the Entrance, along with a cheerful crowd. The area is now bd0101.are.</p> 
-      <p>The NPCs not in the group have random DisplaystringHeads while they are waiting for the PC either to talk to them or to Corwin and start the march. We give Biff the Understudy, our example NPC, the following lines which need to be patched to <strong>bd0101.bcs</strong> with EXTEND_TOP. Note: we already used the name "xxbd0101.baf" for Biff's spawning as described in Tutorial Part 1, so we will name this file "bd0101_commenting_et.baf", with "_et" for "EXTEND_TOP".</p>
+      <p>The NPCs not in the group have random DisplaystringHeads while they are waiting for the PC either to talk to them or to Corwin and start the march. We give Biff the Understudy, our example NPC, the following lines which need to be patched to <strong>bd0101.bcs</strong> with EXTEND_TOP. Note: we already used the name "bd0101_patch.baf" for Biff's spawning as described in Tutorial Part 1, so we will name this file "bd0101_commenting_et.baf", with "_et" for "EXTEND_TOP".</p>
 	  <p class="info">Of course, you could put all script blocks for bd0101.bcs into one file and patch them via EXTEND_TOP. But: if you do that, each script block from Tutorial Part 1 needs to have <strong>Continue()</strong> at the end.</p>	  
 	<pre class="code">	  
 /* bd0101_commenting_et.baf; this goes into bd0101.bcs */
@@ -507,7 +507,7 @@ EXTEND_TOP ~bd0101.bcs~ ~%MOD_FOLDER%/baf/bd0101_commenting_et.baf~
       <p>When everyone starts marching out of the city to face the crusade, all NPCs not in the group start moving towards the southeast area exit until the scene fades to black.</p> 
 	  <p>We patch this to <strong>bdcut08.bcs</strong> so Biff will move, too:</p>
 	 <pre class="code">  
-/* xxbdcut08.baf
+/* bdcut08_patch.baf
 march out of BG city: make Biff move when the coalition start marching out of BG city */
 IF
 	True()
@@ -523,7 +523,7 @@ END
      <p>And the according tp2 patching (note the EXTEND_TOP):</p>
 	 <pre class="code">  
 /*  March out of BG city: make Biff move when the coalition start marching out of BG city */
-EXTEND_TOP ~bdcut08.bcs~ ~%MOD_FOLDER%/baf/xxbdcut08.baf~
+EXTEND_TOP ~bdcut08.bcs~ ~%MOD_FOLDER%/baf/bdcut08_patch.baf~
   EVALUATE_BUFFER
 	</pre>	
 	
@@ -577,10 +577,11 @@ EXTEND_BOTTOM ~bd1000.bcs~ ~%MOD_FOLDER%/baf/bd1000_commenting.baf~
 	  <p>Inside the old temple of Bhaal (bd7230.are) there are three crusaders trapped in cages. A lever to the left will activate a spike trap in those cages, killing the three crusaders inside. The PC can either activate the trap by clicking on the lever twice. Before doing that, the PC can also threaten the crusaders with doing this.</p>
 	  <p class="info">If the lever is pulled twice and the crusaders killed that way, a PC being PALADIN or RANGER will fall. Please note: because of how it is scripted, clicking on the lever while having more than one group member selected is counted by the engine as more than one click - and the spike trapp will be activated even if the player clicked only once!</p>
 	  <p>If the PC choses the threatening reply option it is only Rasaad who will react to the threat (and Dorn replying to Rasaad if present). But seeing how using the lever to kill the crusaders will lead to a fall of paladin- and rangerhood of the PC tells me that this is a situation where good aligned NPCs should react, and strongly.<p>
-	  <p>So, Biff will do two things to serve as an example for other mod NPCs:<p>
+	  <p>So, Biff will do three things to serve as an example for other mod NPCs:<p>
 	  <ol>
         <li>Biff will comment on the threat in the crusader's dialogue (BDKHARMY.dlg state 6).</li>
         <li>Biff will have a comment as floating text in case the spike trap is activated to kill the crusaders.</li>
+        <li>Biff will have a comment as dialogue box in case the PC loses paladin or rangerhood this way.</li>
 	  </ol>	  
 	  <p>The comment into the dialogue is a simple I_C_T that needs to be put into a .d-file. In the tutorial mod package it is called <strong>sod_event_comments.d</strong>:<p>	  
 	 <pre class="code"> 	 
@@ -589,7 +590,7 @@ I_C_T bdkharmy 6 xxBiff_bdkharmy_6
 == xxBiffJ IF ~IsValidForPartyDialogue("xxBiff")~ THEN ~Wow, eeeevil.~
 END
 	</pre>
-	  <p>For the reaction to the usage of the spike trap, we need to patch the script <strong>bdlever2.bcs</strong> so it sets a variable we can use for detection. For this, we add to the tp2:<p>	  
+	  <p>For the reaction to the usage of the spike trap, we need to patch the script <strong>bdlever2.bcs</strong> so it sets variables we can use for detection. For this, we add to the tp2:<p>	  
 	 <pre class="code">  
 /* React in case crusaders in cages are killed by spikes (bd7230.are) */
 /* Patch bdlever2.bcs */
@@ -598,7 +599,23 @@ COPY_EXISTING ~bdlever2.BCS~ ~override~
 		SPRINT textToReplace ~\(Kill("bdkharmy")\)~
 		COUNT_REGEXP_INSTANCES ~%textToReplace%~ num_matches
 		PATCH_IF (num_matches > 0) BEGIN
-			REPLACE_TEXTUALLY ~%textToReplace%~ ~SetGlobal("xxBiff_UsedSpikes","bd7230",1) \1~ 
+			REPLACE_TEXTUALLY ~%textToReplace%~ ~SetGlobal("xxBiff_UsedSpikes","GLOBAL",1) \1~ 
+			PATCH_PRINT ~Patching: %num_matches% matches found in %SOURCE_FILESPEC% for REPLACE_TEXTUALLY: %textToReplace%~
+		END ELSE BEGIN
+			PATCH_WARN ~WARNING: could not find %textToReplace% in %SOURCE_FILESPEC%~
+		END
+		SPRINT textToReplace ~\(ActionOverride(Player1,RemovePaladinHood())\)~
+		COUNT_REGEXP_INSTANCES ~%textToReplace%~ num_matches
+		PATCH_IF (num_matches > 0) BEGIN
+			REPLACE_TEXTUALLY ~%textToReplace%~ ~SetGlobal("xxBiff_SpikeTrapFall","GLOBAL",1) \1~ 
+			PATCH_PRINT ~Patching: %num_matches% matches found in %SOURCE_FILESPEC% for REPLACE_TEXTUALLY: %textToReplace%~
+		END ELSE BEGIN
+			PATCH_WARN ~WARNING: could not find %textToReplace% in %SOURCE_FILESPEC%~
+		END
+		SPRINT textToReplace ~\(ActionOverride(Player1,RemoveRangerHood())\)~
+		COUNT_REGEXP_INSTANCES ~%textToReplace%~ num_matches
+		PATCH_IF (num_matches > 0) BEGIN
+			REPLACE_TEXTUALLY ~%textToReplace%~ ~SetGlobal("xxBiff_SpikeTrapFall","GLOBAL",1) \1~ 
 			PATCH_PRINT ~Patching: %num_matches% matches found in %SOURCE_FILESPEC% for REPLACE_TEXTUALLY: %textToReplace%~
 		END ELSE BEGIN
 			PATCH_WARN ~WARNING: could not find %textToReplace% in %SOURCE_FILESPEC%~
@@ -606,23 +623,96 @@ COPY_EXISTING ~bdlever2.BCS~ ~override~
 	END
 BUT_ONLY
 	</pre>	
-	 <p>And this goes into Biff's OVERRIDE script. Please note that the timer to space NPC reactions is an offer for compatibility: if you use it with my prefix so all NPC mods use the same, comments of NPCs will not all happen at once and can be better read by the player.</p>
+	 <p>And this goes into Biff's OVERRIDE script. For each reaction, there is a script block that will prevent Biff's reaction in case he wasn't around when it happened.</p>
 	 <pre class="code">  
-/* PC killed crusaders with the spikes */
+/* (T3) Biff should not react to spike trap if he wasn't around */
+IF
+	!InParty(Myself)
+	OR(2)
+		!AreaCheck("bd7230")
+		!Range("Lever",30)
+	Global("xxBiff_UsedSpikes","GLOBAL",1) //this variable is set by 
+
+patching bdlever2.BCS via tp2
+	CombatCounter(0)
+THEN
+	RESPONSE #100
+		SetGlobal("xxBiff_UsedSpikes","GLOBAL",3)
+END
+
+/* (T3) PC killed crusaders with the spikes */
 IF
 	InParty(Myself)
 	IsValidForPartyDialog(Myself)
 	See(Player1)
 	AreaCheck("bd7230")
-	Global("xxBiff_UsedSpikes","bd7230",1) //this variable is set by patching bdlever2.BCS via tp2
+	Global("xxBiff_UsedSpikes","GLOBAL",1) //this variable is set by 
+
+patching bdlever2.BCS via tp2
 	CombatCounter(0)
-	!GlobalTimerNotExpired("C#SoD_spiketrap_timer","MYAREA") //If you use exactly this timer (with my prefix), then all NPC mods could be spaced so they do not talk at the same time. Otherwise you don't need a timer here.
 THEN
 	RESPONSE #100
-		SetGlobal("xxBiff_UsedSpikes","bd7230",2)
-		SetGlobalTimer("C#SoD_spiketrap_timer","MYAREA",ONE_ROUND) //use this with my prefix for compatibility
-		DisplayStringHead(Myself,~If I'd be Lawful Good, I could also initiate dialogue and react by leaving the group or somesuch.~)
+		SetGlobal("xxBiff_UsedSpikes","GLOBAL",2)
+		DisplayStringHead(Myself,~If I'd be Lawful Good, I could 
+
+also initiate dialogue and react by leaving the group or somesuch.~)
 END
+
+/* PC lost Paladinhood / Rangerhood due to spiketraps */
+/* (T3) Biff should not react if he wasn't around */
+IF
+	!InParty(Myself)
+	!AreaCheck("bd7230")
+	Global("xxBiff_SpikeTrapFall","GLOBAL",1) //this variable is set 
+
+by patching bdlever2.BCS via tp2
+	CombatCounter(0)
+THEN
+	RESPONSE #100
+		SetGlobal("xxBiff_SpikeTrapFall","GLOBAL",4)
+END
+
+/* (T3) Biff was around: PC lost Paladinhood / Rangerhood due to 
+
+spiketraps */
+IF
+	InParty(Myself)
+	IsValidForPartyDialog(Myself)
+	See(Player1)
+	AreaCheck("bd7230")
+	Global("xxBiff_SpikeTrapFall","GLOBAL",1) //this variable is set 
+
+by patching bdlever2.BCS via tp2
+	CombatCounter(0)
+THEN
+	RESPONSE #100
+		SetGlobal("xxBiff_SpikeTrapFall","GLOBAL",2)
+END
+/* trigger */
+IF
+	See(Player1)
+	CombatCounter(0)
+	!See([ENEMY])
+	!StateCheck(Myself,CD_STATE_NOTVALID)
+	!StateCheck(PLAYER1,CD_STATE_NOTVALID)
+	Global("xxBiff_SpikeTrapFall","GLOBAL",2)
+THEN
+	RESPONSE #100
+		StartDialogNoSet(Player1)
+END
+	</pre>
+	  <p>The comment about the fallen PC goes into the .d-file. In the tutorial mod package it is called <strong>sod_event_comments.d</strong>:<p>	  
+	 <pre class="code"> 	 
+APPEND xxBiffJ
+/* (T3) PC lost paladinhood / rangerhood due to the spike trap */
+IF ~Global("xxBiff_SpikeTrapFall","GLOBAL",2)~ THEN spiketrap_fall
+SAY ~Whoa, &lt;CHARNAME&gt;. As a paladin or ranger, I would totally go nuts right now!~
+IF ~~ THEN DO ~SetGlobal("xxBiff_SpikeTrapFall","GLOBAL",3) 
+/* uncomment the following line if it makes sense for your NPC */
+//SetLeavePartyDialogFile() LeaveParty() Enemy() Attack(Player1)
+~ EXIT
+END
+END //APPEND
 	</pre>
 	
 	
@@ -645,7 +735,7 @@ END
 	</pre>
 	  <p>This is what we will patch to <strong>bd2000.bcs</strong> via EXTEND_TOP:</p>
 	 <pre class="code">  
-/* xxbd2000_commenting_et.baf */
+/* bd2000_commenting_et.baf */
 /* PC surrendered Bridgefort to the Crusaders */
 IF
 	Global("bd_plot","global",260)
@@ -658,7 +748,7 @@ IF
 		Global("bd_betrayal_discussion","bd2000",1) //or Corwin's dialogue fired already
 THEN
 	RESPONSE #100
-		SetGlobal("xxBiff_betrayal_discussion","bd2000",1)
+		SetGlobal("xxBiff_betrayal_discussion","GLOBAL",1)
 		SetGlobalTimer("bd_betrayal_discuss_timer","bd2000",ONE_MINUTE) //to space all the other NPC comments
 		DisplayStringHead("xxBiff",~Well, this was definitely faster.~)
 		Continue()
@@ -667,7 +757,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* (T3) PC gave Bridgefort Castle to the crusaders */
-EXTEND_TOP ~bd2000.bcs~ ~%MOD_FOLDER%/baf/xxbd2000_commenting_et.baf~
+EXTEND_TOP ~bd2000.bcs~ ~%MOD_FOLDER%/baf/bd2000_commenting_et.baf~
   EVALUATE_BUFFER
 	</pre>
 	
@@ -679,7 +769,7 @@ EXTEND_TOP ~bd2000.bcs~ ~%MOD_FOLDER%/baf/xxbd2000_commenting_et.baf~
 	 <p class="info">Of course you can make your NPC say something in addition to the other ones. In this case you need to use own trigger variables for the commenting script blocks and using EXTEND_BOTTOM is sufficient.</p>
 	  <p>This is what we will patch to <strong>bd0063.bcs</strong>. It contains both script blocks, one for a fighter who would warn about the place being a good ambush point and the second for a mage who would warn about the place being a dead magic zone:</p>
 	 <pre class="code">  
-/* xxbd0063_commenting.baf */
+/* bd0063_commenting.baf */
 
 /* Warn about the place being a good ambush point: */
 IF
@@ -706,7 +796,7 @@ END
 	  <p>And the tp2 patching:</p>	  
 	 <pre class="code">  
 /* (T3) Comment in random area (Canyon Ambush) bd0063.are */
-EXTEND_BOTTOM ~bd0063.bcs~ ~%MOD_FOLDER%/baf/xxbd0063_commenting.baf~
+EXTEND_BOTTOM ~bd0063.bcs~ ~%MOD_FOLDER%/baf/bd0063_commenting.baf~
 EVALUATE_BUFFER
 	</pre>	
 	
@@ -715,7 +805,7 @@ EVALUATE_BUFFER
 	  <p>In the spider cave (bd0114.are) a giant beetle will appear. After killing it, all party members will comment. A timer helps to space the comments appropriately.</p>	
 	  <p>This is what we will patch to <strong>bd0114.bcs</strong>:</p>
 	 <pre class="code">  
-/* xxbd0114_commenting.baf */
+/* bd0114_commenting.baf */
 IF
 	Global("BD_POINT6","BD0114",4)  // Spider Cave: Rhinoceros Beetle appeared
 	StateCheck("BDBEETRH",STATE_REALLY_DEAD)  // Rhinoceros Beetle
@@ -731,7 +821,7 @@ END
 	  <p>And the tp2 patching:</p>	  
 	 <pre class="code">  
 /* (T3) Comment after killing the Rhinoceros Beetle in bd0114.are */
-EXTEND_BOTTOM ~bd0114.bcs~ ~%MOD_FOLDER%/baf/xxbd0114_commenting.baf~
+EXTEND_BOTTOM ~bd0114.bcs~ ~%MOD_FOLDER%/baf/bd0114_commenting.baf~
 EVALUATE_BUFFER
 	</pre>	
 	
@@ -740,7 +830,7 @@ EVALUATE_BUFFER
 	  <p>When the battle for Bridgefot starts, all NPC will have a comment.</p>
 	  <p>This is what we will patch to <strong>bd2000.bcs</strong>:</p>
 	 <pre class="code">  
-/* xxbd2000_commenting.baf */
+/* bd2000_commenting.baf */
 /* Battle at Bridgefort starts */
 IF
 	Global("bd_plot","global",250)
@@ -758,7 +848,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Battle at Bridgefort starts */
-EXTEND_BOTTOM ~bd2000.bcs~ ~%MOD_FOLDER%/baf/xxbd2000_commenting.baf~
+EXTEND_BOTTOM ~bd2000.bcs~ ~%MOD_FOLDER%/baf/bd2000_commenting.baf~
   EVALUATE_BUFFER
 	</pre>
 	
@@ -773,7 +863,7 @@ EXTEND_BOTTOM ~bd2000.bcs~ ~%MOD_FOLDER%/baf/xxbd2000_commenting.baf~
         <li>Comment after return from Avernus: portal is closed</li>
 	  <p>This is what we will patch to <strong>bd4300.bcs</strong>:</p>
 	 <pre class="code">  
-/* xxbd4300_commenting_et.baf */
+/* bd4300_commenting_et.baf */
 /* 1 Hephernaan discovered the group inside the castle */
 IF
 	Global("bd_plot","global",370)
@@ -846,7 +936,7 @@ END
 	  <p>And the tp2 patching via EXTEND_TOP:</p>
 	 <pre class="code">  
 /* Comments in bd4300.are (Bridgefort Castle interior and Avernus portal) */
-EXTEND_TOP ~bd4300.bcs~ ~%MOD_FOLDER%/baf/xxbd4300_commenting_et.baf~
+EXTEND_TOP ~bd4300.bcs~ ~%MOD_FOLDER%/baf/bd4300_commenting_et.baf~
 EVALUATE_BUFFER
 	</pre>
 		
@@ -855,7 +945,7 @@ EVALUATE_BUFFER
 	  <p class="info">Our NPC will say their piece in addition, but also only with a 50% chance. If you want your NPC to give their comment always, you need to remove one of the #50 action blocks and change the percetage to #100 as indicated below.</p>
 	  <p>This is what we will patch to <strong>bd4400.bcs</strong>:</p>
 	 <pre class="code">  
-/* xxbd4400_commenting.baf */
+/* bd4400_commenting.baf */
 /* Comment upon entering Avernus */
 IF
 	GlobalLT("bd_plot","global",505)
@@ -873,7 +963,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment upon entering Avernus */
-EXTEND_BOTTOM ~bd4400.bcs~ ~%MOD_FOLDER%/baf/xxbd4400_commenting.baf~
+EXTEND_BOTTOM ~bd4400.bcs~ ~%MOD_FOLDER%/baf/bd4400_commenting.baf~
 EVALUATE_BUFFER
 	</pre>
 		
@@ -881,7 +971,7 @@ EVALUATE_BUFFER
 	  <p>Inside Avernus, the group has to use an elevator. Between the demon showers, the NPCs comment on it.</p>	
 	  <p>This is what we will patch to <strong>bd4601.bcs</strong>:</p>
 	 <pre class="code">  
-/* xxbd4601_commenting_et.baf */
+/* bd4601_commenting_et.baf */
 /* Comment in the Avernus Elevator */
 IF
 	Global("xxBiff_bd_hellevator_ot","bd4601",0)  
@@ -899,7 +989,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment in the Avernus Elevator */
-EXTEND_TOP ~bd4601.bcs~ ~%MOD_FOLDER%/baf/xxbd4601_commenting_et.baf~
+EXTEND_TOP ~bd4601.bcs~ ~%MOD_FOLDER%/baf/bd4601_commenting_et.baf~
 EVALUATE_BUFFER
 	</pre>
 		
@@ -908,7 +998,7 @@ EVALUATE_BUFFER
 	 <p class="info">If your NPC should speak up in addition to one of the original ones you need to remove the original variable Global("BD_SDD317_WYRMS","BD5100",0) out of the script block. Also, the comment could be done via DisplayStringHead instead of calling a real dialogue line.</p>
 	  <p>This is what we will patch to <strong>bd5100aw.bcs</strong>:</p>
 	 <pre class="code">  
-/* xxbd5100aw_commenting.baf */
+/* bd5100aw_commenting.baf */
 /* Comment before entering the Cave with the blind Wyrmlings (bd5100aw.bcs). Will only fire if no original NPC gives their line. */
 IF
 	OR(3)
@@ -929,7 +1019,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment before entering the Cave with the blind Wyrmlings (bd5100aw.bcs) */
-EXTEND_BOTTOM ~bd5100aw.bcs~ ~%MOD_FOLDER%/baf/xxbd5100aw_commenting.baf~
+EXTEND_BOTTOM ~bd5100aw.bcs~ ~%MOD_FOLDER%/baf/bd5100aw_commenting.baf~
 EVALUATE_BUFFER
 	</pre>	
 	  <p>The comment is an actual dialogue pop up. The following goes into the NPC's joined dialogue file:</p>
@@ -950,7 +1040,7 @@ END //APPEND
 	  <p>After the three blind wyrmlings in the cave (bd0113.are) are killed, Jaheira or Corwin will have a remark. I put the according trigger here in case you want your NPC to comment, too.</p>	
 	  <p>This is what we will patch to <strong>bd0113.bcs</strong> to trigger the dialogue:</p>
 	 <pre class="code">  
-/* xxbd0113_commenting.baf */
+/* bd0113_commenting.baf */
 /* Comment after killing the blind Wyrmlings in Cave (bd0113.bcs) */
 IF
 	StateCheck("BDWYRMLI",STATE_REALLY_DEAD)  // Blind Albino Wyrmling
@@ -969,7 +1059,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment after killing the blind Wyrmlings in Cave (bd0113.bcs) */
-EXTEND_BOTTOM ~bd0113.bcs~ ~%MOD_FOLDER%/baf/xxbd0113_commenting.baf~
+EXTEND_BOTTOM ~bd0113.bcs~ ~%MOD_FOLDER%/baf/bd0113_commenting.baf~
 EVALUATE_BUFFER
 	</pre>	
 	  <p>The comment is an actual dialogue pop up. The following goes into the NPC's joined dialogue file:</p>
@@ -990,7 +1080,7 @@ END //APPEND
 	  <p>In one of the areas in the Underground River, Kanaglym (bd5300.are) the group has to fight a necromancer and his ghost dragon. The NPCs give a shout when the fight starts.</p>	 
 	  <p>This is what we will patch to <strong>bd5300.bcs</strong>:</p>
 	 <pre class="code">  
-/* xxbd5300_commenting.baf */
+/* bd5300_commenting.baf */
 /* Comment when battle starts in Kanaglym (bd5300.are, Underground River) */
 IF
 	Global("BD_AREA_HOSTILE","BD5300",1)  // Kanaglym
@@ -1008,7 +1098,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment when battle starts in Kanaglym (bd5300.are, Underground River) */
-EXTEND_BOTTOM ~bd5300.bcs~ ~%MOD_FOLDER%/baf/xxbd5300_commenting.baf~
+EXTEND_BOTTOM ~bd5300.bcs~ ~%MOD_FOLDER%/baf/bd5300_commenting.baf~
 EVALUATE_BUFFER
 	</pre>		
 		
@@ -1019,7 +1109,7 @@ EVALUATE_BUFFER
 	  <p>Both script blocks make the NPC comment with a 33% chance. If you want your NPC to comment always, you need to remove the extra RESPONSE #200 Continue() action block.</p>  
 	  <p>This is what we will patch to <strong>bd6100.bcs</strong>:</p>
 	 <pre class="code">  
-/* xxbd6100_commenting_et.baf */
+/* bd6100_commenting_et.baf */
 /* Last area bd6100.are: comment in abduction scene (for EET or SoD with Jastey's SoD Tweak Pack) */
 
 
@@ -1059,7 +1149,7 @@ END
 	  <p>And the tp2 patching via EXTEND_TOP:</p>
 	 <pre class="code">  
 /* End of SoD - Comment in Abduction Scene */
-EXTEND_TOP ~bd6100.bcs~ ~%MOD_FOLDER%/baf/xxbd6100_commenting_et.baf~
+EXTEND_TOP ~bd6100.bcs~ ~%MOD_FOLDER%/baf/bd6100_commenting_et.baf~
 EVALUATE_BUFFER
 	</pre>
 		
@@ -1069,7 +1159,7 @@ EVALUATE_BUFFER
 	  <p>To let our NPC comment, too, we need to patch the trigger script bdbark01.bcs.</p>
 	  <p>This is what we will patch to <strong>bdbark01.bcs</strong>:</p>
 	 <pre class="code">  
-/* xxbdbark01_commenting.baf */
+/* bdbark01_commenting.baf */
 /* Comment in Dragonspear Castle Exterior */
 IF
 	Name("bark_mdd1246a",Myself)
@@ -1086,7 +1176,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment in Dragonspear Castle Exterior */
-EXTEND_BOTTOM ~bdbark01.bcs~ ~%MOD_FOLDER%/baf/xxbdbark01_commenting.baf~
+EXTEND_BOTTOM ~bdbark01.bcs~ ~%MOD_FOLDER%/baf/bdbark01_commenting.baf~
 EVALUATE_BUFFER
 	</pre>
 		
@@ -1096,7 +1186,7 @@ EVALUATE_BUFFER
 	  <p class="info">This is only needed for your NPC if they are already available inside the Baldur's Gate city areas of SoD.</p> 
 	  <p>This is what we will patch to <strong>bdc116d.bcs</strong>:</p>
 	 <pre class="code">  
-/* xxbdc116d.baf */
+/* bdc116d_patch.baf */
 /* Move the PC in the cutscene of the plotting nobles in Three Old Kegs (bdc116d.bcs) */
 IF
 	Global("bd_uncovered_seditious_plot","BD0108",1)  
@@ -1121,7 +1211,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Move the PC in the cutscene of the plotting nobles in Three Old Kegs (bdc116d.bcs) */
-EXTEND_TOP ~bdc116d.bcs~ ~%MOD_FOLDER%/baf/xxbdc116d.baf~
+EXTEND_TOP ~bdc116d.bcs~ ~%MOD_FOLDER%/baf/bdc116d_patch.baf~
 EVALUATE_BUFFER
 	</pre>
 	
@@ -1131,7 +1221,7 @@ EVALUATE_BUFFER
 	  <p>When reaching the closed doors before the portal, one of the original NPC comment on how evil they look.</p>	  
 	  <p>This is what we will patch to <strong>bdvaultd.bcs</strong> so our NPC makes a comment in case none of the original NPCs is present:</p>
 	 <pre class="code">  
-/* xxbdvaultd.baf */
+/* bdvaultd_patch.baf */
 /* Comment on closed vault door (to portal) in Dragonspear Castle Interior */
 IF
 	Global("bd_MDD893a_ot","bd4300",0)  // if your NPC should comment in addition, change this to a unique variable with your prefix
@@ -1148,7 +1238,7 @@ END
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment on closed vault door (to portal) in Dragonspear Castle Interior */
-EXTEND_BOTTOM ~bdvaultd.bcs~ ~%MOD_FOLDER%/baf/xxbdvaultd.baf~
+EXTEND_BOTTOM ~bdvaultd.bcs~ ~%MOD_FOLDER%/baf/bdvaultd_patch.baf~
 EVALUATE_BUFFER
 	</pre>
 	
@@ -1186,19 +1276,19 @@ ADD_TRANS_TRIGGER BDTHRIX 13 ~!IsValidForPartyDialogue("xxBiff")~ DO 2 IF ~!Is?f
 /* Thrix' game: add Biff for certain randomness to the blocks of 4 dialogue states each */
 /* 1st states of 4 state blocks: add Biff to the end */
 EXTEND_BOTTOM BDTHRIX 21 26 30 34 38 42 46 50 54 58 62 66 70 74 78 82 86 90
-IF ~Global("xxBiff_SoDThrix","GLOBAL",0) IsValidForPartyDialogue("xxBiff")~ THEN + xxBiff
+IF ~Global("xxBiff_SoDThrix","GLOBAL",0) IsValidForPartyDialogue("xxBiff")~ THEN + xxBiff_thrix
 END
 /* 2nd states of 4 state blocks: add Biff at the top, i.e. position "1" as "0" is in case there is no more NPC available */
 EXTEND_TOP BDTHRIX 22 27 31 35 39 43 47 51 55 59 63 67 71 75 79 83 87 91 #1
-IF ~Global("xxBiff_SoDThrix","GLOBAL",0) IsValidForPartyDialogue("xxBiff")~ THEN + xxBiff
+IF ~Global("xxBiff_SoDThrix","GLOBAL",0) IsValidForPartyDialogue("xxBiff")~ THEN + xxBiff_thrix
 END
 /* 3rd states of 4 state blocks: add Biff at position 10 */
 EXTEND_TOP BDTHRIX 23 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 #10
-IF ~Global("xxBiff_SoDThrix","GLOBAL",0) IsValidForPartyDialogue("xxBiff")~ THEN + xxBiff
+IF ~Global("xxBiff_SoDThrix","GLOBAL",0) IsValidForPartyDialogue("xxBiff")~ THEN + xxBiff_thrix
 END
 /* 4th states of 4 state blocks: add Biff at position 5 */
 EXTEND_TOP BDTHRIX 24 29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 #5
-IF ~Global("xxBiff_SoDThrix","GLOBAL",0) IsValidForPartyDialogue("xxBiff")~ THEN + xxBiff
+IF ~Global("xxBiff_SoDThrix","GLOBAL",0) IsValidForPartyDialogue("xxBiff")~ THEN + xxBiff_thrix
 END
 
 /* in case PC lost and Biff was chosen: Thrix claims him (only verbally) */
@@ -1209,7 +1299,7 @@ END
 /* Thrix new dialogue for our NPC */
 APPEND BDTHRIX
 
-IF ~~ THEN BEGIN xxBiff 
+IF ~~ THEN BEGIN xxBiff_thrix
   SAY ~The Understudy... always so well prepared. I will take his soul and show him that he is not prepared, at all.~
   IF ~~ THEN REPLY ~You want Biff? Then he will be yours if I lose.~ DO ~SetGlobal("xxBiff_SoDThrix","GLOBAL",1)
 SetGlobal("bd_thrix_sacrifice_companion","global",1)
@@ -1498,7 +1588,7 @@ SetGlobal("bd_sdd301_taield_skill","global",2)~ EXTERN BDTAIELD 6
 	 <pre class="code">  
 /* The Chicken, the Well, and the Dog Easter Egg */
 I_C_T BDDOGW01 0 C#BE_BDDOGW01_0
-== xxBiffsj IF ~IfValidForPartyDialogue("xxBiff")~ THEN ~We washed the chicken in the well and the dog came to collect it. Never gets old!~
+== xxBiffJ IF ~IfValidForPartyDialogue("xxBiff")~ THEN ~We washed the chicken in the well and the dog came to collect it. Never gets old!~
 == BDDOGW01 IF ~IfValidForPartyDialogue("xxBiff")
 OR(2) IsValidForPartyDialogue("KHALID")
 IsValidForPartyDialogue("JAHEIRA")~ THEN ~Woof!~
@@ -1586,6 +1676,10 @@ END
 	  
 	  
       <h2><a name="toc_101">31. Version History</a></h2>
+          <p>Version 4:</p>
+          <ul>
+            <li>Optimized naming scheme of d and baf files for search and replace of names (if tutorial NPC mod template is used for other NPCs): This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
+          </ul>
           <p>Version 3:</p>
           <ul>
             <li>Tutorial was revised and updated with new content. This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
@@ -1599,7 +1693,7 @@ END
           </ul>	  
           <p>Version 2:</p>
           <ul>
-            <li>~%MOD_FOLDER%/baf/xxbd4400_commenting.baf~ should be patched to bd4400.bcs via EXTEND_BOTTOM</li>
+            <li>~%MOD_FOLDER%/baf/bd4400_commenting.baf~ should be patched to bd4400.bcs via EXTEND_BOTTOM</li>
           </ul>	  
 	      <p>Version 1:</p>
           <ul>
