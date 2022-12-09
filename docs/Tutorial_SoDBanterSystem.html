@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 4: SoD Banter System for Your NPC</h1>
 	  
-	<p>Version 3, by jastey</p>
+	<p>Version 4, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -151,7 +151,7 @@
           <td>Biff's SoD banter "area" script for second banter with Corwin</td>
         </tr>
         <tr>
-          <td>xxbiffbx.2da</td>
+          <td>xxBiffbx.2da</td>
           <td>List of Biff's SoD banter "area" scripts, executing scripts, and conversion partner's scriptnames for automatic transformation of SoD style banters to "dialogue style" banters in Chapter 4</td>
         </tr>
         </tr>
@@ -273,7 +273,7 @@ END
       <p>And the actual patching of Corwin's OVERRIDE script in the <strong>tp2</strong>:</p> 
 	<pre class="code">	  
 /* 2nd banter is initiated in CORWIN's script by setting the area script to the custom script containing our banter. */
-EXTEND_BOTTOM ~bdcorwin.bcs~ ~%MOD_FOLDER%/baf/xxBiff_corwin.baf~
+EXTEND_BOTTOM ~bdcorwin.bcs~ ~%MOD_FOLDER%/baf/banter_corwin.baf~
 EVALUATE_BUFFER
 	</pre>
 
@@ -508,9 +508,9 @@ BUT_ONLY
 	</pre>
 	  <p>For the actual banters, we do need an extra d-file containing all banters with the lines from the banter "area" baf-files. All banters with all NPCs can go into the same d-file.</p>
 	  <p class="info">Please note: This banter d-file and the banter "area" script files will use the same text lines. Make sure you use the same tra-file for both d-file and baf-files containing the banters when you "traify" the mod so lines will not be doubled.</p>
-	  <p>For Biff's banters, the file will be called <strong>xxbiff_banter_sod.d</strong> and has the following content:</p>
+	  <p>For Biff's banters, the file will be called <strong>banter_sod.d</strong> and has the following content:</p>
 	 <pre class="code">  
-/* (T4) this is xxbiff_banter_sod.d: Biff's banters in "dialogue style" format, for the optional component to transform his banters. Triggered by his OVERRIDE script. */
+/* (T4) this is banter_sod.d: Biff's banters in "dialogue style" format, for the optional component to transform his banters. Triggered by his OVERRIDE script. */
 
 BEGIN xxBiffB //dlg needs to be created once
 
@@ -594,7 +594,7 @@ REQUIRE_PREDICATE (GAME_IS ~bgee eet~ AND FILE_EXISTS_IN_GAME ~bd0103.are~) @900
 
 //add creation of banter files for original NPCs here (s. above)
 
-COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxbiff_banter_sod.d~
+COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/banter_sod.d~
 
 //add conversion from "SetAreaScript" to "Interact" here (s. above)
 
@@ -621,6 +621,10 @@ COMPILE EVALUATE_BUFFER ~%MOD_FOLDER%/dialogue/xxbiff_banter_sod.d~
 	  
 	  
       <h2><a name="toc_101">6. Version History</a></h2>
+          <p>Version 4:</p>
+          <ul>
+            <li>Optimized naming scheme of d and baf files for search and replace of names (if tutorial NPC mod template is used for other NPCs): This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
+          </ul>
           <p>Version 3:</p>
           <ul>
             <li>Tutorial was revised and updated with new content. This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
