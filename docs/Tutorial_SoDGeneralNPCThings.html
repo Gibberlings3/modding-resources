@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 3: Add Other General SoD Behavior to Your NPC: XP Adjustment, Actions in Story Cutscenes, Commenting of Main Story Events</h1>
 	  
-	<p>Version 4, by jastey.</p>
+	<p>Version 5, by jastey.</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -1587,7 +1587,7 @@ SetGlobal("bd_sdd301_taield_skill","global",2)~ EXTERN BDTAIELD 6
 	  <p>This is what we will put into Biff's d-file. In the tutorial mod package it is called <strong>sod_event_comments.d</strong>:</p>
 	 <pre class="code">  
 /* The Chicken, the Well, and the Dog Easter Egg */
-I_C_T BDDOGW01 0 C#BE_BDDOGW01_0
+I_C_T3 BDDOGW01 0 C#BE_BDDOGW01_0
 == xxBiffJ IF ~IfValidForPartyDialogue("xxBiff")~ THEN ~We washed the chicken in the well and the dog came to collect it. Never gets old!~
 == BDDOGW01 IF ~IfValidForPartyDialogue("xxBiff")
 OR(2) IsValidForPartyDialogue("KHALID")
@@ -1597,7 +1597,7 @@ END
 	
 		
       <h2><a name="toc_24">27. Providing the "Skipit" Functionality for Cutscenes</a></h2>
-	  <p>I made this an extra How-To and will only give a link here: <a href="https://www.gibberlings3.net/forums/forum/62-modding-how-tos-and-tutorials/">[How-To] Using EE's "Skipit" Functionality for Mod Cutscenes </a></p>
+	  <p>I made this an extra How-To and will only give a link here: <a href="https://www.gibberlings3.net/forums/topic/35020-how-to-using-ees-skipit-functionality-for-mod-cutscenes/">[How-To] Using EE's "Skipit" Functionality for Mod Cutscenes </a></p>
 	  
 	
 	       <h2><a name="toc_12b">28. Make the Mod EET compatible</a></h2>
@@ -1676,6 +1676,11 @@ END
 	  
 	  
       <h2><a name="toc_101">31. Version History</a></h2>
+          <p>Version 5:</p>
+          <ul>
+            <li>Updated link for "Providing the "Skipit" Functionality for Cutscenes".</li>
+            <li>Fixed syntax for interjection into "The Chicken, the Well, and the Dog Easter Egg" (I_C_T3 instead of I_C_T).</li>
+          </ul>
           <p>Version 4:</p>
           <ul>
             <li>Optimized naming scheme of d and baf files for search and replace of names (if tutorial NPC mod template is used for other NPCs): This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>
