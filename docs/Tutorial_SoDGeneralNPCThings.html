@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 3: Add Other General SoD Behavior to Your NPC: XP Adjustment, Actions in Story Cutscenes, Commenting of Main Story Events</h1>
 	  
-	<p>Version 5, by jastey.</p>
+	<p>Version 6, by jastey.</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -956,7 +956,7 @@ THEN
 		Continue() //Remove this if your NPC should say their line always
 	RESPONSE #50 //change this to #100 if your NPC should say their line always
 		DisplayStringWait("xxBiff",~It's hot in here!~) 
-	    SetGlobal("xxBiff_bd_avernus_bark","bd4400",0)  
+	    SetGlobal("xxBiff_bd_avernus_bark","bd4400",1)  
 		SmallWait(8)
 END
 	</pre>
@@ -1676,6 +1676,10 @@ END
 	  
 	  
       <h2><a name="toc_101">31. Version History</a></h2>
+          <p>Version 6:</p>
+          <ul>
+            <li>Fixed variable setting in arriving in Avernus comment.</li>
+          </ul>
           <p>Version 5:</p>
           <ul>
             <li>Updated link for "Providing the "Skipit" Functionality for Cutscenes".</li>
