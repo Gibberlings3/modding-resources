@@ -974,9 +974,10 @@ EVALUATE_BUFFER
 	  <p>Inside Avernus, the group has to use an elevator. Between the demon showers, the NPCs comment on it.</p>	
 	  <p>This is what we will patch to <strong>bd4601.bcs</strong>:</p>
 	 <pre class="code">  
-/* bd4601_commenting_et.baf */
+/* bd4601_commenting.baf */
 /* Comment in the Avernus Elevator */
 IF
+	GlobalGT("bd_plot","global",554)
 	Global("xxBiff_bd_hellevator_ot","bd4601",0)  
 	IfValidForPartyDialog("xxBiff")  
 	!GlobalTimerNotExpired("bd_hellevator_timer","bd4601")  
@@ -986,13 +987,12 @@ THEN
 		SetGlobal("xxBiff_bd_hellevator_ot","bd4601",1)  // Avernus Elevator
 		SetGlobalTimer("bd_hellevator_timer","bd4601",7)  
 		DisplayStringHead("xxBiff",~Better not be afraid of heights! ... And demons.~)   
-		Continue()
 END
 	</pre>
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment in the Avernus Elevator */
-EXTEND_TOP ~bd4601.bcs~ ~%MOD_FOLDER%/baf/bd4601_commenting_et.baf~
+EXTEND_BOTTOM ~bd4601.bcs~ ~%MOD_FOLDER%/baf/bd4601_commenting.baf~
 EVALUATE_BUFFER
 	</pre>
 		
@@ -1683,6 +1683,7 @@ END
           <ul>
             <li>Fixed variable setting at open portal comment.</li>
             <li>Fixed variable setting in arriving in Avernus comment.</li>
+            <li>Fixed comment timing in Avernus elevator.</li>
           </ul>
           <p>Version 5:</p>
           <ul>
