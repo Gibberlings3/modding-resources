@@ -911,6 +911,7 @@ END
 
 /* 4 Comment after first wave of demons if PC lingers */
 IF
+	GlobalLT("bd_plot","global",499)
 	Global("bd_mdd1290d_ot","bd4300",1)  
 	Global("xxBiff_bd_mdd1290d_ot","bd4300",0)  
 	IfValidForPartyDialog("xxBiff")  
