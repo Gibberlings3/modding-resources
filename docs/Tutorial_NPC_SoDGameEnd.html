@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 2: Make Your NPC Comment and Move Along at the End of SoD</h1>
 	  
-	<p>Version 8, by jastey</p>
+	<p>Version 9, by jastey</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -220,7 +220,7 @@ IF
 	InParty("xxBiff")  
 THEN
 	RESPONSE #100
-		CutSceneId("xxBiff")
+		CutSceneId(Player1)
 		SetGlobal("xxBiff_SoDparty_epilogue","GLOBAL",1) //This will make Biff appear after the PC was released from prison.
 		SetGlobal("xxBiff_Kickout","GLOBAL",1) //this is for inner mod detection, for example if the game's a continuous EET game. Put here whatever you need for your own mod.
 		ActionOverride("xxBiff",LeaveParty())
@@ -517,6 +517,10 @@ END
 	  
 	  
       <h2><a name="toc_13">10. Version History</a></h2>
+          <p>Version 9:</p>
+          <ul>
+            <li>Changed CutSceneID() in bdcut61_patch.baf to Player1.</li>
+          </ul>
           <p>Version 8:</p>
           <ul>
             <li>Optimized naming scheme of d and baf files for search and replace of names (if tutorial NPC mod template is used for other NPCs): This includes unification of used naming schemes, correction of typos and oversights. Proposed examples might have changed in details.</li>

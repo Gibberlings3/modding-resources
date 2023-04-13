@@ -110,7 +110,7 @@
     <div id="wrap"> <!-- Start content wrapper -->
       <h1>Modding Tutorial Part 3: Add Other General SoD Behavior to Your NPC: XP Adjustment, Actions in Story Cutscenes, Commenting of Main Story Events</h1>
 	  
-	<p>Version 5, by jastey.</p>
+	<p>Version 6, by jastey.</p>
 
       <div id="toc">
         <h2><a name="toc">Contents</a></h2>
@@ -874,20 +874,22 @@ THEN
 	RESPONSE #100
 		SetGlobalTimer("bd_mdd905a_ot_timer","bd4300",THREE_MINUTES)  
 		SetGlobal("xxBiff_bd_ot","bd4300",1)  
-		DisplayStringHead("xxBiff",~We should leave, like, now.~)  
+		DisplayStringHead("xxBiff",~We should leave, like, now.~)
+		SmallWait(8)  
 		Continue()  
 END
 
 /* 2 Portal is opened after Hephernaan's scheme */
 IF
 	AreaCheck("BD4300")
-	Global("bd_plot","bd4300",495)
+	Global("bd_plot","global",495)
 	Global("xxBiff_SoDPortalComment","bd4300",0) 
 	IfValidForPartyDialog("xxBiff")  
 THEN
 	RESPONSE #100
 		SetGlobal("xxBiff_SoDPortalComment","bd4300",1)
-		DisplayStringHead("xxBiff",~Ouch, I don't like this part. Does it hurt, &lt;CHARNAME&gt;?~)  
+		DisplayStringHead("xxBiff",~Ouch, I don't like this part. Does it hurt, &lt;CHARNAME&gt;?~) 
+		SmallWait(8) 
 		Continue()
 END
 
@@ -909,6 +911,7 @@ END
 
 /* 4 Comment after first wave of demons if PC lingers */
 IF
+	GlobalLT("bd_plot","global",499)
 	Global("bd_mdd1290d_ot","bd4300",1)  
 	Global("xxBiff_bd_mdd1290d_ot","bd4300",0)  
 	IfValidForPartyDialog("xxBiff")  
@@ -916,6 +919,7 @@ THEN
 	RESPONSE #100
 		DisplayStringHead("xxBiff",~So many demons! Well, I guess that's no wonder considering there is an open portal to Avernus.~)  
 		SetGlobal("xxBiff_bd_mdd1290d_ot","bd4300",1)    
+		SmallWait(8)
 		Continue()
 END
 
@@ -956,7 +960,7 @@ THEN
 		Continue() //Remove this if your NPC should say their line always
 	RESPONSE #50 //change this to #100 if your NPC should say their line always
 		DisplayStringWait("xxBiff",~It's hot in here!~) 
-	    SetGlobal("xxBiff_bd_avernus_bark","bd4400",0)  
+	    SetGlobal("xxBiff_bd_avernus_bark","bd4400",1)  
 		SmallWait(8)
 END
 	</pre>
@@ -971,9 +975,10 @@ EVALUATE_BUFFER
 	  <p>Inside Avernus, the group has to use an elevator. Between the demon showers, the NPCs comment on it.</p>	
 	  <p>This is what we will patch to <strong>bd4601.bcs</strong>:</p>
 	 <pre class="code">  
-/* bd4601_commenting_et.baf */
+/* bd4601_commenting.baf */
 /* Comment in the Avernus Elevator */
 IF
+	GlobalGT("bd_plot","global",554)
 	Global("xxBiff_bd_hellevator_ot","bd4601",0)  
 	IfValidForPartyDialog("xxBiff")  
 	!GlobalTimerNotExpired("bd_hellevator_timer","bd4601")  
@@ -983,13 +988,12 @@ THEN
 		SetGlobal("xxBiff_bd_hellevator_ot","bd4601",1)  // Avernus Elevator
 		SetGlobalTimer("bd_hellevator_timer","bd4601",7)  
 		DisplayStringHead("xxBiff",~Better not be afraid of heights! ... And demons.~)   
-		Continue()
 END
 	</pre>
 	  <p>And the tp2 patching:</p>
 	 <pre class="code">  
 /* Comment in the Avernus Elevator */
-EXTEND_TOP ~bd4601.bcs~ ~%MOD_FOLDER%/baf/bd4601_commenting_et.baf~
+EXTEND_BOTTOM ~bd4601.bcs~ ~%MOD_FOLDER%/baf/bd4601_commenting.baf~
 EVALUATE_BUFFER
 	</pre>
 		
@@ -1676,6 +1680,12 @@ END
 	  
 	  
       <h2><a name="toc_101">31. Version History</a></h2>
+          <p>Version 6:</p>
+          <ul>
+            <li>Fixed variable setting at open portal comment.</li>
+            <li>Fixed variable setting in arriving in Avernus comment.</li>
+            <li>Fixed comment timing in Avernus elevator.</li>
+          </ul>
           <p>Version 5:</p>
           <ul>
             <li>Updated link for "Providing the "Skipit" Functionality for Cutscenes".</li>
