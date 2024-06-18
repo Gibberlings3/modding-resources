@@ -20,6 +20,7 @@ used:
   RoorenArt's Portrait Pack, as roorenart_bg2/lib/g3_bg_cpmvars.tpa [local symlink]
   The Calling, as thecalling/lib/g3_bg_cpmvars.tpa [symbolic link]
   Tweaks Anthology, as cdtweaks/lib/g3_bg_cpmvars.tpa [symbolic link]
+  IWDification, as iwdification/tpa/g3_bg_cpmvars.tpa [symbolic link]
 
 platform:
   obg
