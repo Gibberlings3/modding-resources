@@ -17,6 +17,7 @@ are updated to block the clone as well.
 
 used:
   P&P Celestials, as celestials/lib/cd_clone_spell_bulk_first.tpa [symbolic link]
+  G3 Community Item Pack as g3cip/lib/cd_clone_spell_bulk_first.tpa [symbolic link]
 
 platform:
   bg2-based engines
