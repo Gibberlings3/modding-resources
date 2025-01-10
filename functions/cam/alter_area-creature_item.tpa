@@ -10,14 +10,9 @@ used:
   BG2 Fixpack, as bg2fixpack/lib/alter_area-creature_item.tpa [symbolic link]
   IWDification, as iwdification/iwdspells/lib/alter_area-creature_item.tpa [symbolic link]
   IWDSpells library, as dw_iwdspells/iwdspells/lib/alter_area-creature_item.tpa [symbolic link]
-  EE Fixpack, as eefixpack/files/lib/alter_area-creature_item.tpa [symbolic link]
  
 version history: 
-  unk: creation of the original ALTER_AREA/CREATURE_ITEM
-  1/2/25: Added return values for friendlier replaces and feedback
-
-platform:
-  bg2-based engines
+  unknown
 
 */
 
@@ -35,16 +30,13 @@ DEFINE_PATCH_FUNCTION ALTER_AREA_ITEM
           flag_undroppable = "-1"
   STR_VAR item       = "same"
           match_item = "same"
-  RET     replaced_slot 
-          replaced_item  
 
 BEGIN
 
   READ_SHORT 0x76 item_num ELSE 0
   READ_LONG  0x78 item_off ELSE 0
   LPF ALTER_AREA-CREATURE_ITEM INT_VAR expiry charge1 charge2 charge3 flags flag_identified flag_unstealable flag_stolen flag_undroppable item_num item_off
-                               STR_VAR item match_item 
-                               RET replaced_slot replaced_item END
+                               STR_VAR item match_item END
 
 END
 
@@ -62,16 +54,13 @@ DEFINE_PATCH_FUNCTION ALTER_CREATURE_ITEM
           flag_undroppable = "-1"
   STR_VAR item       = "same"
           match_item = "same"
-  RET     replaced_slot 
-          replaced_item  
 
 BEGIN
 
   READ_LONG  0x2bc item_off ELSE 0
   READ_LONG  0x2c0 item_num ELSE 0
   LPF ALTER_AREA-CREATURE_ITEM INT_VAR expiry charge1 charge2 charge3 flags flag_identified flag_unstealable flag_stolen flag_undroppable item_num item_off
-                               STR_VAR item match_item 
-                               RET replaced_slot replaced_item END
+                               STR_VAR item match_item END
 
 END
 
@@ -91,20 +80,14 @@ DEFINE_PATCH_FUNCTION ALTER_AREA-CREATURE_ITEM
           item_off         = 0
   STR_VAR item       = "same"
           match_item = "same"
-  RET     replaced_slot 
-          replaced_item  
 
 BEGIN
-  
-  SET    replaced_slot = "-1"
-  SPRINT replaced_item ""
+
   FOR (index = 0 ; index < item_num ; ++index) BEGIN
     SET base = (item_off + (index * 0x14))
     READ_ASCII base o_item
     PATCH_IF (("%o_item%" STRING_COMPARE_CASE "%match_item%" = 0) OR
               ("all"      STRING_COMPARE_CASE "%match_item%" = 0)) BEGIN
-      SET replaced_slot = index
-      SPRINT replaced_item "%o_item%"
       PATCH_IF (expiry >= 0)  BEGIN WRITE_SHORT (base + 0x08) expiry END
       PATCH_IF (charge1 >= 0) BEGIN WRITE_SHORT (base + 0x0a) charge1 END
       PATCH_IF (charge2 >= 0) BEGIN WRITE_SHORT (base + 0x0c) charge2 END

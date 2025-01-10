@@ -17,8 +17,9 @@ GAME_INCLUDES option, and several meta-game variables such as
 original_iwd or enhanced_edition are also generated. 
 
 used:
-  Spell-50, as spell50/lib/game_checks.tpa
-  The Calling, as thecalling/lib/game_checks.tpa
+  Bullet Sponge, as cd_bs/lib/game_checks.tpa [symbolic link]
+  Spell-50, as spell50/lib/game_checks.tpa [symbolic link]
+  The Calling, as thecalling/lib/game_checks.tpa [symbolic link]
 
 platform:
   all games

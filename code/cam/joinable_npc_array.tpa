@@ -19,6 +19,7 @@ be called multiple times but only execute once.
 * note that it relies on variables from game_checks.tpa *
   
 used:
+  Bullet Sponge, as cd_bs/lib/joinable_npc_array.tpa [symbolic link]
   Tweaks Anthology, as cdtweaks/lib/joinable_npc_array.tpa [symbolic link]
 
 platform:
