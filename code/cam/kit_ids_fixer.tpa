@@ -11,8 +11,11 @@ be installed multiple times w/o issue
 used:
   amber, as amber/lib/kit_ids_fixer.tpa [symbolic link]
   bg2 fixpack, as bg2fixpack/lib/kit_ids_fixer.tpa [symbolic link]
+  Gavin, as gavin/lib/kit_ids_fixer.tpa [symbolic link]
+  Gavin BG2, as gavin_bg2/lib/kit_ids_fixer.tpa [symbolic link]
   Haldamir, as haldamir/lib/kit_ids_fixer.tpa [local symlink]
   Totemic Cernd, as totemiccernd/lib/kit_ids_fixer.tpa [local symlink]
+  Tweaks Anthology, as cdtweaks/lib/kit_ids_fixer.tpa [local symlink]
 
 platform:
   obg2, though it should be harmless on other bg2-based engines
