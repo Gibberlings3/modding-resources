@@ -4,6 +4,8 @@
 
 /*
 
+DEPRECATED. Use cd_clone_spell_bulk_first instead. 
+
 A variant of cd_clone_spell used in geomantic sorcerer to make
 arcane versions of divine spells. 
 
