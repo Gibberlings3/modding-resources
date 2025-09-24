@@ -881,7 +881,6 @@ END
 
 /* 2 Portal is opened after Hephernaan's scheme */
 IF
-	AreaCheck("BD4300")
 	Global("bd_plot","global",495)
 	Global("xxBiff_SoDPortalComment","bd4300",0) 
 	IfValidForPartyDialog("xxBiff")  
@@ -1680,6 +1679,10 @@ END
 	  
 	  
       <h2><a name="toc_101">31. Version History</a></h2>
+          <p>Version 7:</p>
+          <ul>
+            <li>Removed AreaCheck from area script (bd4300).</li>
+          </ul>
           <p>Version 6:</p>
           <ul>
             <li>Fixed variable setting at open portal comment.</li>
