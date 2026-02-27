@@ -25,6 +25,7 @@ used:
  
 version history: 
   12/12/22: initial coding
+  2/27/26: Swapping from signature check to SOURCE_EXT
 
 platform:
   all
@@ -130,10 +131,9 @@ BEGIN
 
   // set variables and offsets based on the file type
   SET new_fx = 0
-  READ_ASCII 0 sig ELSE "fail" (4)
   READ_ASCII 0x04 version (4)
-  PATCH_MATCH "%sig%" WITH
-    "SPL "
+  PATCH_MATCH "%SOURCE_EXT%" WITH
+    "SPL"
     BEGIN
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.0" = 0) BEGIN // iwd2, spl 2.0
         SET min_size       = 0x82
@@ -148,7 +148,7 @@ BEGIN
       READ_SHORT  0x68 abil_num ELSE 0
     END
 
-    "ITM "
+    "ITM"
     BEGIN
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.1" = 0) BEGIN // pst, itm v1.1
         SET min_size       = 0x9a
@@ -163,7 +163,7 @@ BEGIN
       READ_SHORT  0x68 abil_num ELSE 0
     END
 
-    "CRE "
+    "CRE"
     BEGIN
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
         SET min_size       = 0x378
@@ -191,14 +191,9 @@ BEGIN
       READ_BYTE 0x33 fx_type ELSE 2
     END
 
-    "fail"
-    BEGIN
-      PATCH_WARN "ERROR: CLONE_EFFECT_EX does not think %SOURCE_FILE% appears to be a valid file"
-    END
-
     DEFAULT
       SET min_size = "-1" // kill macro as the file type is not recognized
-      PATCH_WARN "ERROR: CLONE_EFFECT_EX does not support file type %sig%"
+      PATCH_WARN "ERROR: CLONE_EFFECT_EX does not support file type %SOURCE_EXT%"
   END
   
   SPRINT o_SOURCE_FILE ~%SOURCE_FILE%~ // preserve original copy vars
@@ -391,7 +386,7 @@ END
   END // end ability loop
 
   // now adjust offsets for creature files
-  PATCH_IF (("%sig%" STRING_EQUAL "CRE ") AND (new_fx > 0)) BEGIN // fix offsets for cre files if fx inserted
+  PATCH_IF (("%SOURCE_EXT%" STRING_COMPARE_CASE "CRE") AND (new_fx > 0)) BEGIN // fix offsets for cre files if fx inserted
     SET inserted = ((0x30 + (0xd8 * fx_type)) * new_fx)
     PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
       PATCH_FOR_EACH offset IN 0x294 0x344 0x34c 0x354 0x35c 0x360 BEGIN
@@ -512,10 +507,9 @@ BEGIN
 
   // set variables and offsets based on the file type
   SET new_fx = 0
-  READ_ASCII 0 sig ELSE "fail" (4)
   READ_ASCII 0x04 version (4)
-  PATCH_MATCH "%sig%" WITH
-    "SPL "
+  PATCH_MATCH "%SOURCE_EXT%" WITH
+    "SPL"
     BEGIN
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.0" = 0) BEGIN // iwd2, spl 2.0
         SET min_size       = 0x82
@@ -530,7 +524,7 @@ BEGIN
       READ_SHORT  0x68 abil_num ELSE 0
     END
 
-    "ITM "
+    "ITM"
     BEGIN
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.1" = 0) BEGIN // pst, itm v1.1
         SET min_size       = 0x9a
@@ -545,7 +539,7 @@ BEGIN
       READ_SHORT  0x68 abil_num ELSE 0
     END
 
-    "CRE "
+    "CRE"
     BEGIN
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
         SET min_size       = 0x378
@@ -573,14 +567,9 @@ BEGIN
       READ_BYTE 0x33 fx_type ELSE 2
     END
 
-    "fail"
-    BEGIN
-      PATCH_WARN "WARNING: DELETE_EFFECT_EX does not think %SOURCE_FILE% appears to be a valid file"
-    END
-
     DEFAULT
       SET min_size = "-1" // kill macro as the file type is not recognized
-      PATCH_WARN "WARNING: DELETE_EFFECT_EX does not support file type %sig%"
+      PATCH_WARN "WARNING: DELETE_EFFECT_EX does not support file type %SOURCE_EXT%"
   END
   
   SPRINT o_SOURCE_FILE ~%SOURCE_FILE%~ // preserve original copy vars
@@ -703,7 +692,7 @@ END
   END // end ability loop
 
   // now adjust offsets for creature files
-  PATCH_IF (("%sig%" STRING_EQUAL "CRE ") AND (new_fx != 0)) BEGIN // fix offsets for cre files if #fx changed
+  PATCH_IF (("%SOURCE_EXT%" STRING_COMPARE_CASE "CRE") AND (new_fx != 0)) BEGIN // fix offsets for cre files if #fx changed
     SET inserted = ((0x30 + (0xd8 * fx_type)) * new_fx)
     PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
       PATCH_FOR_EACH offset IN 0x294 0x344 0x34c 0x354 0x35c 0x360 BEGIN
@@ -860,10 +849,9 @@ BEGIN
 
   // set variables and offsets based on the file type
   SET alter = 0
-  READ_ASCII 0 sig ELSE "fail" (4)
   READ_ASCII 0x04 version (4)
-  PATCH_MATCH "%sig%" WITH
-    "SPL "
+  PATCH_MATCH "%SOURCE_EXT%" WITH
+    "SPL"
     BEGIN
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V2.0" = 0) BEGIN // iwd2, spl 2.0
         SET min_size       = 0x82
@@ -882,7 +870,7 @@ BEGIN
       END
     END
 
-    "ITM "
+    "ITM"
     BEGIN
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.1" = 0) BEGIN // pst, itm v1.1
         SET min_size       = 0x9a
@@ -901,7 +889,7 @@ BEGIN
       END
     END
 
-    "CRE "
+    "CRE"
     BEGIN
       PATCH_IF ("%version%" STRING_COMPARE_CASE "V1.2" = 0) BEGIN // pst, cre v1.2
         SET min_size       = 0x378
@@ -929,14 +917,9 @@ BEGIN
       READ_BYTE 0x33 fx_type ELSE 2
     END
 
-    "fail"
-    BEGIN
-      PATCH_WARN "WARNING: ALTER_EFFECT_EX does not think %SOURCE_FILE% appears to be a valid file"
-    END
-
     DEFAULT
       SET min_size = "-1" // kill macro as the file type is not recognized
-      PATCH_WARN "WARNING: ALTER_EFFECT_EX does not support file type %sig%"
+      PATCH_WARN "WARNING: ALTER_EFFECT_EX does not support file type %SOURCE_EXT%"
   END
   
   SPRINT o_SOURCE_FILE ~%SOURCE_FILE%~ // preserve original copy vars
@@ -1306,14 +1289,13 @@ DEFINE_PATCH_FUNCTION ALTER_HEADER_EX
           flags_ex      = "SAME" // add strength bonus, bit0
 BEGIN
 
-  READ_ASCII 0x00 sig (3)
   SET abil_length = 0
   SET proceed = 0
   SET alter = 0
-  PATCH_IF ("%sig%" STRING_COMPARE_CASE "ITM" = 0) BEGIN
+  PATCH_IF ("%SOURCE_EXT%" STRING_COMPARE_CASE "ITM" = 0) BEGIN
     SET abil_length = 0x38
   END ELSE
-  PATCH_IF ("%sig%" STRING_COMPARE_CASE "SPL" = 0) BEGIN
+  PATCH_IF ("%SOURCE_EXT%" STRING_COMPARE_CASE "SPL" = 0) BEGIN
     SET abil_length = 0x28
   END
   PATCH_IF abil_length = 0 BEGIN
@@ -1727,14 +1709,13 @@ DEFINE_PATCH_FUNCTION ALTER_HEADER
           icon            = "SAME"
 BEGIN
 
-  READ_ASCII 0x00 sig (3)
   SET abil_length = 0
   SET proceed = 0
   SET alter = 0
-  PATCH_IF ("%sig%" STRING_COMPARE_CASE "ITM" = 0) BEGIN
+  PATCH_IF ("%SOURCE_EXT%" STRING_COMPARE_CASE "ITM" = 0) BEGIN
     SET abil_length = 0x38
   END ELSE
-  PATCH_IF ("%sig%" STRING_COMPARE_CASE "SPL" = 0) BEGIN
+  PATCH_IF ("%SOURCE_EXT%" STRING_COMPARE_CASE "SPL" = 0) BEGIN
     SET abil_length = 0x28
   END
   PATCH_IF abil_length = 0 BEGIN

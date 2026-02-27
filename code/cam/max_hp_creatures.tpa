@@ -22,6 +22,7 @@ version history:
   5/30/24: enabled arbitrary scaling (no longer locked to 100%)
   1/8/25: substantially simplified non-iwd2 code; added DEAD checks; changed from macro to function; 
     fixed minor bugs with dual-class calculations; better rounding; explicit shaman checks
+  2/27/26: Swapping from signature check to SOURCE_EXT  
 
 */
 
@@ -69,8 +70,7 @@ ACTION_IF game_is_iwd2 BEGIN
   BEGIN
     
     // PATCH_PRINT ~checking %SOURCE_FILE%~
-    READ_ASCII 0x00 sig (4) NULL 
-    PATCH_IF ("%sig%" STRING_COMPARE_CASE "CHR" = 0) BEGIN SET fudge = 0x224 END ELSE BEGIN SET fudge = 0 END
+    PATCH_IF ("%SOURCE_EXT%" STRING_COMPARE_CASE "CHR" = 0) BEGIN SET fudge = 0x224 END ELSE BEGIN SET fudge = 0 END
     SET off_flags2 = 0x20 + fudge
     SET off_curhp  = 0x24 + fudge
     SET off_maxhp  = 0x26 + fudge
@@ -130,8 +130,7 @@ END ELSE BEGIN
   BEGIN
    
     PATCH_IF (~%SOURCE_RES%~ STRING_COMPARE_CASE ~riftcr04~) BEGIN // skip creatures meant to have lower hp
-      READ_ASCII 0x00 sig (4) NULL 
-      PATCH_IF ("%sig%" STRING_COMPARE_CASE "CHR" = 0) BEGIN SET fudge = 0x64 END ELSE BEGIN SET fudge = 0 END
+      PATCH_IF ("%SOURCE_EXT%" STRING_COMPARE_CASE "CHR" = 0) BEGIN SET fudge = 0x64 END ELSE BEGIN SET fudge = 0 END
       SET off_flags2 = 0x20 + fudge
       SET off_curhp  = 0x24 + fudge
       SET off_maxhp  = 0x26 + fudge
