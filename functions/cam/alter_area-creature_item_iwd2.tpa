@@ -4,8 +4,8 @@
 
 /*
 
-alter_creature and alter_area just feed into a common macro that does the work
-adapted for iwd2 from the bg2 fixpack original macro
+DEPRECATED as of 3/28/26. Migrate to alter_area-creature_item.tpa
+as it now supports all games, all formats, and expands to cover stores as well. 
 
 used:
   IWD2 Ease of Use, as iwd2-ease/lib/alter_area-creature_item_iwd2.tpa [symbolic link]
@@ -16,6 +16,7 @@ platform:
 version history: 
   unk: creation of the original ALTER_AREA/CREATURE_ITEM
   1/2/25: Added return values for friendlier replaces and feedback
+  3/28/26: DEPRECATED. Migrate to alter_area-creature_item.tpa
 
 */
 
